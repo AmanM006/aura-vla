@@ -1,0 +1,43 @@
+{
+  "steps": 200,
+  "batch_size": 16,
+  "final_train_loss": 0.2299,
+  "test_l1_loss": 0.1895,
+  "elapsed_s": 95.64,
+  "demo_files_used": 5,
+  "samples_trained": 400,
+  "loss_history": [
+    {
+      "step": 0,
+      "loss": 0.5085
+    },
+    {
+      "step": 25,
+      "loss": 0.4043
+    },
+    {
+      "step": 50,
+      "loss": 0.2925
+    },
+    {
+      "step": 75,
+      "loss": 0.243
+    },
+    {
+      "step": 100,
+      "loss": 0.242
+    },
+    {
+      "step": 125,
+      "loss": 0.2112
+    },
+    {
+      "step": 150,
+      "loss": 0.187
+    },
+    {
+      "step": 175,
+      "loss": 0.2299
+    }
+  ]
+}

@@ -1,0 +1,173 @@
+{
+  "policy": "none",
+  "seeds_evaluated": 10,
+  "task_success_count": 0,
+  "task_success_rate": 0.0,
+  "subgoals_achieved": 0,
+  "total_possible_subgoals": 50,
+  "subgoal_success_rate": 0.0,
+  "bimanual_coordination_rate": 0.0,
+  "handoff_rate": 0.0,
+  "seeds_detail": [
+    {
+      "seed": 0,
+      "steps": 500,
+      "subgoals_passed": 0,
+      "task_success": false,
+      "sequencing": 0,
+      "bimanual": false,
+      "handoff": false,
+      "sub_goals": {
+        "drawer_open": false,
+        "fork_placed": false,
+        "spoon_placed": false,
+        "plate_placed": false,
+        "mug_placed": false
+      }
+    },
+    {
+      "seed": 1,
+      "steps": 500,
+      "subgoals_passed": 0,
+      "task_success": false,
+      "sequencing": 0,
+      "bimanual": false,
+      "handoff": false,
+      "sub_goals": {
+        "drawer_open": false,
+        "fork_placed": false,
+        "spoon_placed": false,
+        "plate_placed": false,
+        "mug_placed": false
+      }
+    },
+    {
+      "seed": 2,
+      "steps": 500,
+      "subgoals_passed": 0,
+      "task_success": false,
+      "sequencing": 0,
+      "bimanual": false,
+      "handoff": false,
+      "sub_goals": {
+        "drawer_open": false,
+        "fork_placed": false,
+        "spoon_placed": false,
+        "plate_placed": false,
+        "mug_placed": false
+      }
+    },
+    {
+      "seed": 3,
+      "steps": 500,
+      "subgoals_passed": 0,
+      "task_success": false,
+      "sequencing": 0,
+      "bimanual": false,
+      "handoff": false,
+      "sub_goals": {
+        "drawer_open": false,
+        "fork_placed": false,
+        "spoon_placed": false,
+        "plate_placed": false,
+        "mug_placed": false
+      }
+    },
+    {
+      "seed": 4,
+      "steps": 500,
+      "subgoals_passed": 0,
+      "task_success": false,
+      "sequencing": 0,
+      "bimanual": false,
+      "handoff": false,
+      "sub_goals": {
+        "drawer_open": false,
+        "fork_placed": false,
+        "spoon_placed": false,
+        "plate_placed": false,
+        "mug_placed": false
+      }
+    },
+    {
+      "seed": 5,
+      "steps": 500,
+      "subgoals_passed": 0,
+      "task_success": false,
+      "sequencing": 0,
+      "bimanual": false,
+      "handoff": false,
+      "sub_goals": {
+        "drawer_open": false,
+        "fork_placed": false,
+        "spoon_placed": false,
+        "plate_placed": false,
+        "mug_placed": false
+      }
+    },
+    {
+      "seed": 6,
+      "steps": 500,
+      "subgoals_passed": 0,
+      "task_success": false,
+      "sequencing": 0,
+      "bimanual": false,
+      "handoff": false,
+      "sub_goals": {
+        "drawer_open": false,
+        "fork_placed": false,
+        "spoon_placed": false,
+        "plate_placed": false,
+        "mug_placed": false
+      }
+    },
+    {
+      "seed": 7,
+      "steps": 500,
+      "subgoals_passed": 0,
+      "task_success": false,
+      "sequencing": 0,
+      "bimanual": false,
+      "handoff": false,
+      "sub_goals": {
+        "drawer_open": false,
+        "fork_placed": false,
+        "spoon_placed": false,
+        "plate_placed": false,
+        "mug_placed": false
+      }
+    },
+    {
+      "seed": 8,
+      "steps": 500,
+      "subgoals_passed": 0,
+      "task_success": false,
+      "sequencing": 0,
+      "bimanual": false,
+      "handoff": false,
+      "sub_goals": {
+        "drawer_open": false,
+        "fork_placed": false,
+        "spoon_placed": false,
+        "plate_placed": false,
+        "mug_placed": false
+      }
+    },
+    {
+      "seed": 9,
+      "steps": 500,
+      "subgoals_passed": 0,
+      "task_success": false,
+      "sequencing": 0,
+      "bimanual": false,
+      "handoff": false,
+      "sub_goals": {
+        "drawer_open": false,
+        "fork_placed": false,
+        "spoon_placed": false,
+        "plate_placed": false,
+        "mug_placed": false
+      }
+    }
+  ]
+}

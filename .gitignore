@@ -1,0 +1,16 @@
+# Environment & secrets
+.env
+venv/
+env/
+*.env
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Temporary IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

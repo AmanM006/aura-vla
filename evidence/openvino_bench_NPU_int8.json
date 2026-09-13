@@ -1,0 +1,22 @@
+{
+    "hardware_verdict": "NOT_THE_REQUIRED_MEASUREMENT (host: 12th Gen Intel(R) Core(TM) i5-12450H)",
+    "device": "NPU",
+    "precision": "int8",
+    "act_policy": {
+        "mean_ms": 6.274244993692264,
+        "p50_ms": 6.068999995477498,
+        "p95_ms": 7.747440005186942,
+        "p99_ms": 9.284409142564968,
+        "calls_per_sec": 159.38172656715474,
+        "execution_precision": [
+            "GPU.0"
+        ]
+    },
+    "vision_encoder": {
+        "mean_ms": 2.48921339539811,
+        "calls_per_sec": 401.7333354579935
+    },
+    "vlm_planner": {
+        "error": "Using fallback, cannot benchmark LLM."
+    }
+}

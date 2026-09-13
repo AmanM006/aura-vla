@@ -1,0 +1,14 @@
+{
+  "total_episodes": 3,
+  "requested": 3,
+  "seed_start": 3000,
+  "record_hz": 20,
+  "elapsed_s": 48.73,
+  "avg_sec_per_ep": 16.24,
+  "cameras": [
+    "overhead",
+    "left_wrist",
+    "right_wrist"
+  ],
+  "npz_dataset": "data\\demos\\diffusion_300_dataset.npz"
+}

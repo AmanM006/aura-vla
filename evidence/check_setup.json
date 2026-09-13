@@ -1,0 +1,134 @@
+{
+  "timestamp": "2026-09-14T01:02:18Z",
+  "n_pass": 26,
+  "n_warn": 0,
+  "n_fail": 0,
+  "checks": [
+    {
+      "check": "import mujoco",
+      "status": "PASS",
+      "detail": "OK"
+    },
+    {
+      "check": "import numpy",
+      "status": "PASS",
+      "detail": "OK"
+    },
+    {
+      "check": "import scipy",
+      "status": "PASS",
+      "detail": "OK"
+    },
+    {
+      "check": "import h5py",
+      "status": "PASS",
+      "detail": "OK"
+    },
+    {
+      "check": "import cv2",
+      "status": "PASS",
+      "detail": "OK"
+    },
+    {
+      "check": "import PIL",
+      "status": "PASS",
+      "detail": "OK"
+    },
+    {
+      "check": "import rich",
+      "status": "PASS",
+      "detail": "OK"
+    },
+    {
+      "check": "import fastapi",
+      "status": "PASS",
+      "detail": "OK"
+    },
+    {
+      "check": "import uvicorn",
+      "status": "PASS",
+      "detail": "OK"
+    },
+    {
+      "check": "import websockets",
+      "status": "PASS",
+      "detail": "OK"
+    },
+    {
+      "check": "import pydantic",
+      "status": "PASS",
+      "detail": "OK"
+    },
+    {
+      "check": "import openvino (optional)",
+      "status": "PASS"
+    },
+    {
+      "check": "import torch (optional)",
+      "status": "PASS"
+    },
+    {
+      "check": "import speechmatics (optional)",
+      "status": "PASS"
+    },
+    {
+      "check": "import nncf (optional)",
+      "status": "PASS"
+    },
+    {
+      "check": "scene XML exists",
+      "status": "PASS",
+      "detail": "C:\\Users\\cheer\\Documents\\lab\\hackathon\\scene\\dinner_table.xml"
+    },
+    {
+      "check": "scene loads without error",
+      "status": "PASS",
+      "detail": "nq=48, nbody=28, nu=12"
+    },
+    {
+      "check": "12+ actuators (dual SO-101)",
+      "status": "PASS",
+      "detail": "12 actuators"
+    },
+    {
+      "check": "required cameras present",
+      "status": "PASS",
+      "detail": "5 cameras: ['top_cam', 'front_cam', 'op_cam', 'left_wrist_cam', 'right_wrist_cam']"
+    },
+    {
+      "check": "home keyframe stable under gravity",
+      "status": "PASS",
+      "detail": "arm max|qvel| = 0.000007 (< 5e-3)"
+    },
+    {
+      "check": "offscreen rendering (top_cam 128\u00d7128)",
+      "status": "PASS",
+      "detail": "top_cam renders (128, 128, 3)"
+    },
+    {
+      "check": "OpenVINO devices enumerable",
+      "status": "PASS",
+      "detail": "devices: ['CPU', 'GPU']"
+    },
+    {
+      "check": "NPU device check",
+      "status": "PASS",
+      "detail": "NPU NOT available (will use CPU fallback)"
+    },
+    {
+      "check": "GPU (iGPU) device check",
+      "status": "PASS",
+      "detail": "GPU available"
+    },
+    {
+      "check": "SPEECHMATICS_API_KEY",
+      "status": "PASS",
+      "detail": "key set (32 chars)"
+    },
+    {
+      "check": "10-step physics sanity",
+      "status": "PASS",
+      "detail": "10 physics steps OK, time=0.0200s"
+    }
+  ]
+}

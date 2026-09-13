@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Observability Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --panel-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --accent-color: #4CAF50;
+            --error-color: #f44336;
+            --warn-color: #ff9800;
+            --border-color: #333;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        h2 { margin: 0; font-size: 1.2rem; }
+        
+        .cams {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            flex-grow: 1;
+        }
+        .cam-container {
+            position: relative;
+            background: #000;
+            border-radius: 4px;
+            aspect-ratio: 4/3;
+            overflow: hidden;
+        }
+        .cam-container.overhead {
+            grid-column: span 2;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .status-bar {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .badge {
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            background: #555;
+        }
+        .badge.done { background: var(--accent-color); }
+        .badge.progress { background: var(--warn-color); color: #000; }
+        
+        .metrics { margin-top: 20px; height: 150px; }
+        
+        .plan-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+        .plan-list li {
+            padding: 8px;
+            margin-bottom: 5px;
+            background: #2a2a2a;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .plan-list li.active {
+            border-left: 4px solid var(--accent-color);
+            background: #333;
+        }
+        
+        .voice-panel { margin-top: 20px; }
+        .transcript-box {
+            background: #000;
+            padding: 10px;
+            border-radius: 4px;
+            min-height: 80px;
+            font-family: monospace;
+            margin-bottom: 10px;
+        }
+        .settled { color: var(--accent-color); }
+        .unsettled { color: #888; }
+        
+        .controls { display: flex; gap: 10px; }
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: #333;
+            color: white;
+        }
+        button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-interrupt { background: var(--error-color); color: white; }
+        .btn-send { background: var(--accent-color); color: white; }
+        
+        #conn-status {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--error-color);
+        }
+        #conn-status.connected { background: var(--accent-color); }
+        
+        .phase-indicator {
+            font-size: 0.9rem;
+            color: var(--warn-color);
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="panel">
+        <div class="header">
+            <h2>Live Telemetry</h2>
+            <div><span id="conn-status"></span> WebSocket</div>
+        </div>
+        <div class="phase-indicator" id="phase-display">Phase: Initializing...</div>
+        
+        <div class="cams">
+            <div class="cam-container overhead">
+                <canvas id="cam-overhead"></canvas>
+            </div>
+            <div class="cam-container">
+                <canvas id="cam-left"></canvas>
+            </div>
+            <div class="cam-container">
+                <canvas id="cam-right"></canvas>
+            </div>
+        </div>
+        
+        <div class="status-bar" id="badges-container">
+            <!-- Badges generated via JS -->
+        </div>
+        
+        <!-- Intel Anomalib & Diffusion Telemetry Panel -->
+        <div class="defect-monitor" style="margin-top: 15px; padding: 10px; background: #161616; border: 1px solid #333; border-radius: 6px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 0.85rem; font-weight: bold; color: #aaa;">INTEL ANOMALIB DEFECT MONITOR</span>
+                <span id="defect-badge" class="badge done" style="font-size: 0.75rem;">NOMINAL</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 0.8rem;">
+                <span>Score: <b id="anomaly-score-text">0.00</b></span>
+                <div style="flex-grow: 1; background: #333; height: 8px; border-radius: 4px; overflow: hidden; position: relative;">
+                    <div id="anomaly-bar" style="width: 0%; height: 100%; background: #4CAF50; transition: width 0.2s, background-color 0.2s;"></div>
+                    <div style="position: absolute; left: 65%; top: 0; bottom: 0; width: 2px; background: #f44336;" title="Threshold 0.65"></div>
+                </div>
+                <span id="anomaly-device" style="color: #888; font-size: 0.75rem;">OpenVINO (iGPU)</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.75rem; color: #777;">
+                <span>Hotspot: <b id="anomaly-hotspot" style="color: #bbb;">none</b></span>
+                <span>Policy: <b style="color: #64b5f6;">Continuous Diffusion (H=16, k=2)</b></span>
+            </div>
+        </div>
+        
+        <div class="metrics">
+            <canvas id="latencyChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="panel">
+        <div class="header">
+            <h2>Plan & Execution</h2>
+        </div>
+        
+        <ul class="plan-list" id="plan-container">
+            <!-- Plan items generated via JS -->
+        </ul>
+        
+        <div class="voice-panel">
+            <div class="header">
+                <h2>Voice Command</h2>
+            </div>
+            <div class="transcript-box" id="transcript-display">
+                <span class="settled" id="text-settled"></span>
+                <span class="unsettled" id="text-unsettled"></span>
+            </div>
+            <div class="controls">
+                <input type="text" id="manual-input" placeholder="Type instruction...">
+                <button class="btn-send" onclick="sendInstruction()">Send</button>
+                <button class="btn-interrupt" onclick="sendInterrupt()">INTERRUPT</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chart.js Setup
+        const ctx = document.getElementById('latencyChart').getContext('2d');
+        const latencyChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Latency Split (ms)'],
+                datasets: [
+                    { label: 'NPU (Vision)', data: [0], backgroundColor: '#8e24aa' },
+                    { label: 'iGPU (VLM)', data: [0], backgroundColor: '#1e88e5' },
+                    { label: 'CPU (ACT)', data: [0], backgroundColor: '#43a047' }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { stacked: true, max: 200 },
+                    y: { stacked: true }
+                },
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#fff' } }
+                }
+            }
+        });
+
+        // Image Drawing helper
+        function drawCam(id, base64Data, objects) {
+            if (!base64Data) return;
+            const canvas = document.getElementById(id);
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                
+                // Overlay objects
+                if (objects) {
+                    ctx.fillStyle = 'red';
+                    ctx.strokeStyle = 'red';
+                    ctx.lineWidth = 2;
+                    for (const [name, pos] of Object.entries(objects)) {
+                        // Assuming pos is [x, y, z] for 3D or [x, y, w, h] for 2D. 
+                        // Just drawing a dot and label for demonstration
+                        ctx.beginPath();
+                        ctx.arc(pos[0], pos[1], 5, 0, 2 * Math.PI);
+                        ctx.fill();
+                        ctx.fillText(name, pos[0] + 10, pos[1]);
+                    }
+                }
+            };
+            img.src = 'data:image/jpeg;base64,' + base64Data;
+        }
+
+        // WebSocket Setup
+        let ws;
+        function connectWS() {
+            ws = new WebSocket(`ws://${window.location.host}/ws/state`);
+            
+            ws.onopen = () => {
+                document.getElementById('conn-status').className = 'connected';
+            };
+            
+            ws.onclose = () => {
+                document.getElementById('conn-status').className = '';
+                setTimeout(connectWS, 2000);
+            };
+            
+            ws.onmessage = (event) => {
+                const state = JSON.parse(event.data);
+                
+                // Update Phase
+                document.getElementById('phase-display').innerText = `Phase: ${state.phase}`;
+                
+                // Update Badges
+                const badgeHtml = Object.entries(state.sub_goals).map(([goal, isDone]) => {
+                    const statusClass = isDone ? 'done' : 'progress'; // simplify
+                    return `<span class="badge ${statusClass}">${goal}</span>`;
+                }).join('');
+                document.getElementById('badges-container').innerHTML = badgeHtml;
+                
+                // Update Anomalib Defect Monitor
+                const anomScore = state.anomaly_score || 0.0;
+                const isDefect = state.anomaly_is_defect || false;
+                const scoreText = document.getElementById('anomaly-score-text');
+                const bar = document.getElementById('anomaly-bar');
+                const badge = document.getElementById('defect-badge');
+                const hotspot = document.getElementById('anomaly-hotspot');
+                const anomDev = document.getElementById('anomaly-device');
+
+                if (scoreText) scoreText.innerText = anomScore.toFixed(3);
+                if (bar) {
+                    bar.style.width = `${Math.min(100, Math.round(anomScore * 100))}%`;
+                    bar.style.backgroundColor = isDefect ? '#f44336' : (anomScore > 0.45 ? '#ff9800' : '#4CAF50');
+                }
+                if (badge) {
+                    if (isDefect) {
+                        badge.className = 'badge';
+                        badge.style.background = '#f44336';
+                        badge.innerText = 'DEFECT DETECTED';
+                    } else {
+                        badge.className = 'badge done';
+                        badge.style.background = '#4CAF50';
+                        badge.innerText = 'NOMINAL';
+                    }
+                }
+                if (hotspot) hotspot.innerText = state.anomaly_hotspot || 'none';
+                if (anomDev && state.anomaly_device) anomDev.innerText = state.anomaly_device;
+
+                // Update Latency
+                latencyChart.data.datasets[0].data = [state.npu_ms || 0];
+                latencyChart.data.datasets[1].data = [state.igpu_ms || 0];
+                latencyChart.data.datasets[2].data = [state.cpu_ms || 0];
+                latencyChart.update();
+                
+                // Update Cams
+                drawCam('cam-overhead', state.overhead_cam, state.objects);
+                drawCam('cam-left', state.left_wrist_cam, null);
+                drawCam('cam-right', state.right_wrist_cam, null);
+                
+                // Update Voice
+                document.getElementById('text-settled').innerText = state.settled_text;
+                document.getElementById('text-unsettled').innerText = state.transcript.replace(state.settled_text, '');
+                
+                // Update Plan
+                const planHtml = state.plan.map((step, idx) => {
+                    const activeClass = idx === state.plan_index ? 'active' : '';
+                    return `<li class="${activeClass}">${idx + 1}. ${step}</li>`;
+                }).join('');
+                document.getElementById('plan-container').innerHTML = planHtml;
+            };
+        }
+        
+        connectWS();
+
+        // API calls
+        async function sendApiInstruction(text) {
+            await fetch('/api/instruction', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ instruction: text })
+            });
+        }
+        
+        function sendInstruction() {
+            const input = document.getElementById('manual-input');
+            if(input.value.trim()) {
+                sendApiInstruction(input.value);
+                input.value = '';
+            }
+        }
+        
+        function sendInterrupt() {
+            sendApiInstruction("STOP AND REPLAN");
+        }
+        
+        document.getElementById('manual-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') sendInstruction();
+        });
+    </script>
+</body>
+</html>

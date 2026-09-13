@@ -1,0 +1,52 @@
+{
+  "training": {
+    "train_loss_history": [
+      0.8777722244461378,
+      0.23311079619452357,
+      0.15991733688861132,
+      0.1351402949852248,
+      0.11386070276300113,
+      0.10562912266080578,
+      0.09835847575838368,
+      0.09865711652673781,
+      0.08262459739732246,
+      0.08779042912647128
+    ],
+    "val_loss_history": [
+      0.3679073204596837,
+      0.14643955354889235,
+      0.14461226016283035,
+      0.13544678191343942,
+      0.09755812212824821,
+      0.09666124731302261,
+      0.09339635260403156,
+      0.09016232999662559,
+      0.0911407470703125,
+      0.0895653950671355
+    ],
+    "best_val_loss": 0.08957,
+    "total_time_s": 575.74,
+    "total_samples": 1683,
+    "epochs": 10
+  },
+  "openvino_benchmark": {
+    "CPU": {
+      "matched_device": "CPU",
+      "step_mean_ms": 1.407,
+      "step_p50_ms": 1.293,
+      "step_p95_ms": 2.016,
+      "full_16step_trajectory_ms": 22.52,
+      "trajectories_per_sec": 44.4
+    },
+    "GPU": {
+      "matched_device": "GPU",
+      "step_mean_ms": 4.796,
+      "step_p50_ms": 4.799,
+      "step_p95_ms": 5.601,
+      "full_16step_trajectory_ms": 76.74,
+      "trajectories_per_sec": 13.0
+    }
+  },
+  "checkpoint_path": "C:\\Users\\cheer\\Documents\\lab\\hackathon\\models\\diffusion_policy.pt",
+  "ir_directory": "C:\\Users\\cheer\\Documents\\lab\\hackathon\\models\\diffusion_openvino"
+}

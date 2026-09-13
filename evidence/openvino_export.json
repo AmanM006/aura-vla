@@ -1,0 +1,38 @@
+{
+  "fp32": {
+    "precision": "fp32",
+    "mean_ms": 7.23,
+    "p50_ms": 6.06,
+    "p95_ms": 12.97,
+    "p99_ms": 30.53,
+    "throughput_fps": 138.3,
+    "execution_devices": [
+      "CPU"
+    ],
+    "accuracy_drift_mm": 0.0
+  },
+  "fp16": {
+    "precision": "fp16",
+    "mean_ms": 6.12,
+    "p50_ms": 5.42,
+    "p95_ms": 9.58,
+    "p99_ms": 12.43,
+    "throughput_fps": 163.5,
+    "execution_devices": [
+      "CPU"
+    ],
+    "accuracy_drift_mm": 0.05
+  },
+  "int8": {
+    "precision": "int8",
+    "mean_ms": 2.76,
+    "p50_ms": 2.52,
+    "p95_ms": 3.94,
+    "p99_ms": 5.31,
+    "throughput_fps": 362.6,
+    "execution_devices": [
+      "CPU"
+    ],
+    "accuracy_drift_mm": 0.42
+  }
+}

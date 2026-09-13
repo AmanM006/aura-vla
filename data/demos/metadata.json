@@ -1,0 +1,17 @@
+{
+  "total_episodes": 5,
+  "seed_start": 1000,
+  "record_hz": 20,
+  "cameras": [
+    "overhead",
+    "left_wrist",
+    "right_wrist"
+  ],
+  "resolution": [
+    128,
+    128
+  ],
+  "state_dim": 12,
+  "action_dim": 12,
+  "elapsed_s": 66.93
+}

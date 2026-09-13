@@ -1,0 +1,19 @@
+render:
+  - type: web
+    name: hackathon-dashboard
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: standard  # needs memory for MuJoCo
+    healthCheckPath: /api/status
+    envVars:
+      - key: MUJOCO_GL
+        value: osmesa
+      - key: SPEECHMATICS_API_KEY
+        sync: false  # set in Render dashboard, never committed
+      - key: OPENVINO_DEVICE_CPU
+        value: CPU
+      - key: OPENVINO_DEVICE_GPU
+        value: GPU
+      - key: OPENVINO_DEVICE_NPU
+        value: NPU

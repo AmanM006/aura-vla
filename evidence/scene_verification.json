@@ -1,0 +1,66 @@
+{
+  "1_loads_without_error": {
+    "pass": true,
+    "detail": "nq=48, nbody=28, nu=12"
+  },
+  "2_actuator_count_12": {
+    "pass": true,
+    "detail": "12 actuators configured"
+  },
+  "3_wrist_camera_sites": {
+    "pass": true,
+    "detail": "left_wrist_cam id=3, right_wrist_cam id=4"
+  },
+  "4_home_pose_stability": {
+    "pass": true,
+    "detail": "max|arm_qvel| = 0.001786"
+  },
+  "5_scene_quiescent": {
+    "pass": true,
+    "detail": "max|arm_qvel| = 0.000172"
+  },
+  "6_drawer_travel_90mm": {
+    "pass": true,
+    "detail": "range = [0.000, 0.090] m"
+  },
+  "7_drawer_carries_cutlery": {
+    "pass": true,
+    "detail": "fork weld=0, spoon weld=1"
+  },
+  "8_plate_reachable": {
+    "pass": true,
+    "detail": "distance = 0.095 m"
+  },
+  "9_mug_reachable": {
+    "pass": true,
+    "detail": "distance = 0.093 m"
+  },
+  "10_handoff_site_reachable": {
+    "pass": true,
+    "detail": "dist_left = 0.255 m, dist_right = 0.255 m"
+  },
+  "11_all_cameras_render": {
+    "pass": true,
+    "detail": "5/5 cameras rendered successfully"
+  },
+  "12_fk_valid": {
+    "pass": true,
+    "detail": "jaw sites finite"
+  },
+  "13_objects_on_table": {
+    "pass": true,
+    "detail": "all objects elevated on table surface"
+  },
+  "14_ctrlranges_defined": {
+    "pass": true,
+    "detail": "all ctrlranges valid"
+  },
+  "15_friction_configured": {
+    "pass": true,
+    "detail": "42 geoms have friction > 0"
+  },
+  "16_physics_config": {
+    "pass": true,
+    "detail": "dt=0.002s, integrator=3"
+  }
+}

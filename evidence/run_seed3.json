@@ -1,0 +1,26 @@
+{
+  "instruction": "set the table",
+  "seed": 3,
+  "policy": "scripted",
+  "elapsed_s": 22.03,
+  "steps": 2001,
+  "anomalies_detected": 36,
+  "replans_executed": 8,
+  "drawer_open": true,
+  "fork_placed": true,
+  "spoon_placed": true,
+  "plate_placed": true,
+  "mug_placed": true,
+  "sub_goals": {
+    "drawer_open": true,
+    "fork_placed": true,
+    "spoon_placed": true,
+    "plate_placed": true,
+    "mug_placed": true
+  },
+  "task_success": true,
+  "sequencing": 5,
+  "bimanual": true,
+  "handoff_occurred": true,
+  "dropped": []
+}
