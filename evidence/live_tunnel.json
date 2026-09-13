@@ -1,0 +1,12 @@
+{
+  "status": "ONLINE_AND_STREAMING",
+  "timestamp": 1789341873.8869631,
+  "hardware": "Intel Core Ultra 7 258V (Lunar Lake NPU+iGPU+CPU)",
+  "public_url": "https://talks-bibliography-prefers-contribute.trycloudflare.com",
+  "nextjs_dashboard_url": "https://talks-bibliography-prefers-contribute.trycloudflare.com/",
+  "classic_dashboard_url": "https://talks-bibliography-prefers-contribute.trycloudflare.com/classic",
+  "backend_ws_url": "wss://talks-bibliography-prefers-contribute.trycloudflare.com/ws/state",
+  "mcp_tools_url": "https://talks-bibliography-prefers-contribute.trycloudflare.com/api/mcp/tools",
+  "mcp_call_url": "https://talks-bibliography-prefers-contribute.trycloudflare.com/api/mcp/call",
+  "status_api_url": "https://talks-bibliography-prefers-contribute.trycloudflare.com/api/status"
+}

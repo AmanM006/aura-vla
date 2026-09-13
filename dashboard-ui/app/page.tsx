@@ -55,14 +55,55 @@ export default function DashboardPage() {
     return () => clearInterval(timer);
   }, []);
 
+  // Dynamic Backend Endpoint Resolver (Localhost, Cloudflare Tunnel, or Vercel)
+  const getBackendEndpoints = () => {
+    if (typeof window === 'undefined') {
+      return {
+        wsUrl: 'ws://localhost:8000/ws/state',
+        apiUrl: 'http://localhost:8000/api/instruction',
+      };
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const paramBackend = params.get('backend');
+    const envBackend = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const targetUrl = paramBackend || envBackend;
+
+    if (targetUrl) {
+      const clean = targetUrl.replace(/\/+$/, '');
+      const wsProto = clean.startsWith('https://') ? 'wss://' : 'ws://';
+      const hostPart = clean.replace(/^https?:\/\//, '');
+      return {
+        wsUrl: `${wsProto}${hostPart}/ws/state`,
+        apiUrl: `${clean}/api/instruction`,
+      };
+    }
+
+    const host = window.location.hostname || 'localhost';
+    const isLocal = host === 'localhost' || host === '127.0.0.1';
+    const isHttps = window.location.protocol === 'https:';
+    const wsProto = isHttps ? 'wss://' : 'ws://';
+    const httpProto = isHttps ? 'https://' : 'http://';
+
+    if (isLocal) {
+      return {
+        wsUrl: `${wsProto}${host}:8000/ws/state`,
+        apiUrl: `${httpProto}${host}:8000/api/instruction`,
+      };
+    } else {
+      return {
+        wsUrl: `${wsProto}${window.location.host}/ws/state`,
+        apiUrl: `${httpProto}${window.location.host}/api/instruction`,
+      };
+    }
+  };
+
   // WebSocket Connection Loop
   useEffect(() => {
     let reconnectTimeout: NodeJS.Timeout;
 
     const connectWebSocket = () => {
-      // Determine host
-      const host = typeof window !== 'undefined' ? window.location.hostname || 'localhost' : 'localhost';
-      const wsUrl = `ws://${host}:8000/ws/state`;
+      const { wsUrl } = getBackendEndpoints();
 
       try {
         const ws = new WebSocket(wsUrl);
@@ -105,9 +146,9 @@ export default function DashboardPage() {
 
   // REST API Instruction Sender
   const sendInstruction = async (text: string) => {
-    const host = typeof window !== 'undefined' ? window.location.hostname || 'localhost' : 'localhost';
+    const { apiUrl } = getBackendEndpoints();
     try {
-      await fetch(`http://${host}:8000/api/instruction`, {
+      await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ instruction: text }),

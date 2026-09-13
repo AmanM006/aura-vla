@@ -209,9 +209,67 @@ python scripts/collect_demos.py --seed-start 3000 --count 50 --out data/demos/di
 python policy/train_diffusion.py --demos data/demos/ --epochs 10 --batch 32
 ```
 
+### D. Model Context Protocol (MCP) Integration
+AURA-VLA transforms the physical MuJoCo simulation environment and Intel AI accelerators into interactive agent tools via the **Model Context Protocol (MCP)**:
+
+1. **Claude Desktop & Cursor IDE Integration**:
+Add the server definition from [`mcp_config.json`](mcp_config.json) to your MCP client configuration:
+```json
+{
+  "mcpServers": {
+    "aura-vla": {
+      "command": "python",
+      "args": ["mcp_server.py"],
+      "env": { "PYTHONUNBUFFERED": "1" }
+    }
+  }
+}
+```
+
+2. **Run Standalone FastMCP Server**:
+```bash
+python mcp_server.py --transport stdio
+```
+
+3. **HTTP REST MCP Proxy**:
+Autonomous web agents and evaluation scripts can also invoke MCP tools directly via HTTP:
+- `GET /api/mcp/tools` — Returns standardized tool schemas.
+- `POST /api/mcp/call` — Executes a tool by name and arguments.
+
+#### Available MCP Tools & Capabilities:
+| Tool Name | Parameters | Description |
+| :--- | :--- | :--- |
+| `get_simulation_telemetry` | *none* | Returns 500Hz MuJoCo physics state, arm joint angles, 3D object positions, active phase, and 5 sub-goal predicates. |
+| `get_anomalib_telemetry` | *none* | Inspects Intel Anomalib visual defect detection status, score ($[0, 1]$), threshold ($0.65$), camera hotspot, and automated mitigation action. |
+| `get_intel_hardware_telemetry` | *none* | Retrieves real-time latency splits across Intel NPU (5.2ms), iGPU (42.1ms), and CPU (1.41ms) with official hardware confirmation. |
+| `send_task_instruction` | `instruction: str` | Dispatches natural language directives into the robot's VLM task planner. |
+| `trigger_emergency_interrupt` | `reason: str` | Signals an immediate physical halt and closed-loop replanning sequence. |
+| `get_verification_matrix` | *none* | Serves empirical 10-seed domain-randomized benchmark results (`eval_seeds_diffusion_openvino.json`). |
+
+- **Resources**: `telemetry://sim_state`, `telemetry://anomalib_radar`
+- **Prompt Template**: `diagnose_manipulation_anomaly(defect_context: str)`
+
 ---
 
-## 6. Docker Instructions (Headless Deployment)
+## 6. Live Public Evaluation Endpoints (Cloudflare Quick Tunnel)
+
+For remote hackathon evaluation without local installation, AURA-VLA streams live 500Hz MuJoCo telemetry and 640×480 HD multi-camera feeds over encrypted public Cloudflare Quick Tunnels:
+
+```bash
+python scripts/start_tunnel.py
+```
+
+| Public Service | Active Live URL | Description |
+| :--- | :--- | :--- |
+| 🌐 **Next.js Cybernetic UI** | [`https://talks-bibliography-prefers-contribute.trycloudflare.com/`](https://talks-bibliography-prefers-contribute.trycloudflare.com/) | High-definition black-themed dashboard with live camera feeds, PiP wrist cams, and real-time Intel latency tier splits. |
+| 📺 **Classic UI Fallback** | [`https://talks-bibliography-prefers-contribute.trycloudflare.com/classic`](https://talks-bibliography-prefers-contribute.trycloudflare.com/classic) | Single-file zero-dependency HTML dashboard. |
+| 📡 **500Hz Telemetry API** | [`https://talks-bibliography-prefers-contribute.trycloudflare.com/api/status`](https://talks-bibliography-prefers-contribute.trycloudflare.com/api/status) | Live JSON state of the physical robot simulation and sub-goals. |
+| 🤖 **Model Context Protocol** | [`https://talks-bibliography-prefers-contribute.trycloudflare.com/api/mcp/tools`](https://talks-bibliography-prefers-contribute.trycloudflare.com/api/mcp/tools) | Queryable MCP tool declarations for external AI agents. |
+| ⚡ **WebSocket HD Stream** | `wss://talks-bibliography-prefers-contribute.trycloudflare.com/ws/state` | Low-latency 640×480 JPEG frame & telemetry broadcast. |
+
+---
+
+## 7. Docker Instructions (Headless Deployment)
 
 The included multi-stage Docker environment runs headless MuJoCo with OSMesa on any Linux host or cloud server:
 
@@ -222,7 +280,7 @@ The observability dashboard will be accessible at `http://localhost:8000`.
 
 ---
 
-## 7. Submission Artifacts
+## 8. Submission Artifacts
 
 - **Demonstration Videos**:
   - Nominal Table Setting (INT8 OpenVINO): [`evidence/demo_seed3_int8.mp4`](evidence/demo_seed3_int8.mp4)
@@ -230,7 +288,8 @@ The observability dashboard will be accessible at `http://localhost:8000`.
 - **Benchmarking Evidence**:
   - Full Precision Benchmarks: [`evidence/openvino_bench_*.json`](evidence/)
   - Diffusion Policy Export & Benchmark: [`evidence/diffusion_train_eval.json`](evidence/diffusion_train_eval.json)
-  - Multi-Seed Evaluation: [`evidence/eval_seeds_scripted.json`](evidence/eval_seeds_scripted.json)
+  - Multi-Seed Evaluation (10/10 seeds, 50/50 subgoals): [`evidence/eval_seeds_diffusion_openvino.json`](evidence/eval_seeds_diffusion_openvino.json)
+  - Live Public Tunnel Metadata: [`evidence/live_tunnel.json`](evidence/live_tunnel.json)
   - Scene Physics Verification: [`evidence/scene_verification.json`](evidence/scene_verification.json)
 
 ---

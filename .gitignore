@@ -18,3 +18,6 @@ Thumbs.db
 # Raw demo files and logs (aggregated in diffusion_300_dataset.npz)
 data/demos/episode_*.hdf5
 *.log
+*.exe
+tools/*.exe
+
