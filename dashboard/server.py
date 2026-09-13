@@ -195,6 +195,7 @@ def run_simulation_loop():
 
     # High-Definition Renderers (640x480 primary, 320x240 wrist cams)
     r_front = mujoco.Renderer(model, height=480, width=640)
+    r_iso = mujoco.Renderer(model, height=480, width=640)
     r_top = mujoco.Renderer(model, height=480, width=640)
     r_left = mujoco.Renderer(model, height=240, width=320)
     r_right = mujoco.Renderer(model, height=240, width=320)
@@ -247,6 +248,7 @@ def run_simulation_loop():
 
         randomizer = DomainRandomizer(seed=seed)
         rand_log = randomizer.randomize(model, data)
+        mujoco.mj_forward(model, data)
         ctrl = ScriptedController(model, data, rand_log)
         monitor = TaskMonitor(model, data)
 
@@ -288,31 +290,31 @@ def run_simulation_loop():
             if step % 4 == 0:
                 # 1. 3D Front perspective (centered symmetrical)
                 r_front.update_scene(data, camera=cam_front)
-                f_front = r_front.render()
+                f_front = np.ascontiguousarray(r_front.render().copy())
                 _, b_front = cv2.imencode(".jpg", cv2.cvtColor(f_front, cv2.COLOR_RGB2BGR), [int(cv2.IMWRITE_JPEG_QUALITY), 85])
                 s_front = base64.b64encode(b_front).decode("ascii")
 
                 # 2. 3D Isometric perspective (angled 3/4 depth)
-                r_front.update_scene(data, camera=cam_iso)
-                f_iso = r_front.render()
+                r_iso.update_scene(data, camera=cam_iso)
+                f_iso = np.ascontiguousarray(r_iso.render().copy())
                 _, b_iso = cv2.imencode(".jpg", cv2.cvtColor(f_iso, cv2.COLOR_RGB2BGR), [int(cv2.IMWRITE_JPEG_QUALITY), 85])
                 s_iso = base64.b64encode(b_iso).decode("ascii")
 
                 # 3. Overhead top-down view
                 r_top.update_scene(data, camera=cam_top)
-                f_top = r_top.render()
+                f_top = np.ascontiguousarray(r_top.render().copy())
                 _, b_top = cv2.imencode(".jpg", cv2.cvtColor(f_top, cv2.COLOR_RGB2BGR), [int(cv2.IMWRITE_JPEG_QUALITY), 85])
                 s_top = base64.b64encode(b_top).decode("ascii")
 
                 # 4. Left wrist ego-view
                 r_left.update_scene(data, camera=cam_left)
-                f_left = r_left.render()
+                f_left = np.ascontiguousarray(r_left.render().copy())
                 _, b_left = cv2.imencode(".jpg", cv2.cvtColor(f_left, cv2.COLOR_RGB2BGR), [int(cv2.IMWRITE_JPEG_QUALITY), 75])
                 s_left = base64.b64encode(b_left).decode("ascii")
 
                 # 5. Right wrist ego-view
                 r_right.update_scene(data, camera=cam_right)
-                f_right = r_right.render()
+                f_right = np.ascontiguousarray(r_right.render().copy())
                 _, b_right = cv2.imencode(".jpg", cv2.cvtColor(f_right, cv2.COLOR_RGB2BGR), [int(cv2.IMWRITE_JPEG_QUALITY), 75])
                 s_right = base64.b64encode(b_right).decode("ascii")
 
