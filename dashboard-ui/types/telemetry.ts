@@ -1,4 +1,4 @@
-export interface SimState {
+﻿export interface SimState {
   timestamp: number;
   phase: string;
   sub_goals: {
@@ -13,6 +13,7 @@ export interface SimState {
   igpu_ms: number;
   cpu_ms: number;
   front_cam?: string | null;
+  iso_cam?: string | null;
   overhead_cam?: string | null;
   left_wrist_cam?: string | null;
   right_wrist_cam?: string | null;

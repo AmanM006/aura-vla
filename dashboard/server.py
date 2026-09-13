@@ -60,6 +60,7 @@ class SimState(BaseModel):
     igpu_ms: Optional[float]
     cpu_ms: Optional[float]
     front_cam: Optional[str] = None
+    iso_cam: Optional[str] = None
     overhead_cam: Optional[str] = None
     left_wrist_cam: Optional[str] = None
     right_wrist_cam: Optional[str] = None
@@ -173,8 +174,21 @@ def run_simulation_loop():
     model = mujoco.MjModel.from_xml_path(str(xml_path))
     data = mujoco.MjData(model)
 
-    # Cameras
-    cam_front = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_CAMERA, "op_cam")
+    # Calibrated Centered Cameras (Zero occlusion, perfectly framed)
+    cam_front = mujoco.MjvCamera()
+    cam_front.type = mujoco.mjtCamera.mjCAMERA_FREE
+    cam_front.lookat = [0.0, -0.02, 0.84]
+    cam_front.distance = 1.38
+    cam_front.elevation = -28.0
+    cam_front.azimuth = 90.0
+
+    cam_iso = mujoco.MjvCamera()
+    cam_iso.type = mujoco.mjtCamera.mjCAMERA_FREE
+    cam_iso.lookat = [0.0, -0.05, 0.80]
+    cam_iso.distance = 1.35
+    cam_iso.elevation = -25.0
+    cam_iso.azimuth = 120.0
+
     cam_top = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_CAMERA, "top_cam")
     cam_left = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_CAMERA, "left_wrist_cam")
     cam_right = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_CAMERA, "right_wrist_cam")
@@ -272,25 +286,31 @@ def run_simulation_loop():
 
             # Render and update state every 4 simulation steps (~15-20 fps stream)
             if step % 4 == 0:
-                # 3D Cinematic perspective
+                # 1. 3D Front perspective (centered symmetrical)
                 r_front.update_scene(data, camera=cam_front)
                 f_front = r_front.render()
-                _, b_front = cv2.imencode(".jpg", cv2.cvtColor(f_front, cv2.COLOR_RGB2BGR), [int(cv2.IMWRITE_JPEG_QUALITY), 82])
+                _, b_front = cv2.imencode(".jpg", cv2.cvtColor(f_front, cv2.COLOR_RGB2BGR), [int(cv2.IMWRITE_JPEG_QUALITY), 85])
                 s_front = base64.b64encode(b_front).decode("ascii")
 
-                # Overhead top-down view
+                # 2. 3D Isometric perspective (angled 3/4 depth)
+                r_front.update_scene(data, camera=cam_iso)
+                f_iso = r_front.render()
+                _, b_iso = cv2.imencode(".jpg", cv2.cvtColor(f_iso, cv2.COLOR_RGB2BGR), [int(cv2.IMWRITE_JPEG_QUALITY), 85])
+                s_iso = base64.b64encode(b_iso).decode("ascii")
+
+                # 3. Overhead top-down view
                 r_top.update_scene(data, camera=cam_top)
                 f_top = r_top.render()
-                _, b_top = cv2.imencode(".jpg", cv2.cvtColor(f_top, cv2.COLOR_RGB2BGR), [int(cv2.IMWRITE_JPEG_QUALITY), 82])
+                _, b_top = cv2.imencode(".jpg", cv2.cvtColor(f_top, cv2.COLOR_RGB2BGR), [int(cv2.IMWRITE_JPEG_QUALITY), 85])
                 s_top = base64.b64encode(b_top).decode("ascii")
 
-                # Left wrist ego-view
+                # 4. Left wrist ego-view
                 r_left.update_scene(data, camera=cam_left)
                 f_left = r_left.render()
                 _, b_left = cv2.imencode(".jpg", cv2.cvtColor(f_left, cv2.COLOR_RGB2BGR), [int(cv2.IMWRITE_JPEG_QUALITY), 75])
                 s_left = base64.b64encode(b_left).decode("ascii")
 
-                # Right wrist ego-view
+                # 5. Right wrist ego-view
                 r_right.update_scene(data, camera=cam_right)
                 f_right = r_right.render()
                 _, b_right = cv2.imencode(".jpg", cv2.cvtColor(f_right, cv2.COLOR_RGB2BGR), [int(cv2.IMWRITE_JPEG_QUALITY), 75])
@@ -328,6 +348,7 @@ def run_simulation_loop():
                     global_state.state.phase = current_phase
                     global_state.state.plan_index = p_idx
                     global_state.state.front_cam = s_front
+                    global_state.state.iso_cam = s_iso
                     global_state.state.overhead_cam = s_top
                     global_state.state.left_wrist_cam = s_left
                     global_state.state.right_wrist_cam = s_right

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
 import { Header } from '@/components/Header';
@@ -132,6 +132,7 @@ export default function DashboardPage() {
         <div className="lg:col-span-7 flex flex-col gap-5">
           <CameraViewport
             frontCam={state.front_cam}
+            isoCam={state.iso_cam}
             overheadCam={state.overhead_cam}
             leftWristCam={state.left_wrist_cam}
             rightWristCam={state.right_wrist_cam}

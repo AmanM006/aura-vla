@@ -1,10 +1,11 @@
 ﻿'use client';
 
 import React, { useState } from 'react';
-import { Camera, Maximize2, Eye, Grid, Sparkles, Crosshair } from 'lucide-react';
+import { Camera, Eye, Grid, Sparkles, Crosshair, Box } from 'lucide-react';
 
 interface CameraViewportProps {
   frontCam?: string | null;
+  isoCam?: string | null;
   overheadCam?: string | null;
   leftWristCam?: string | null;
   rightWristCam?: string | null;
@@ -12,23 +13,26 @@ interface CameraViewportProps {
   objects: Record<string, [number, number, number]>;
 }
 
-type CameraTab = 'front' | 'overhead' | 'left' | 'right' | 'grid';
+type CameraTab = 'iso' | 'front' | 'overhead' | 'left' | 'right' | 'grid';
 
 export const CameraViewport: React.FC<CameraViewportProps> = ({
   frontCam,
+  isoCam,
   overheadCam,
   leftWristCam,
   rightWristCam,
   phase,
   objects,
 }) => {
-  const [activeTab, setActiveTab] = useState<CameraTab>('front');
+  const [activeTab, setActiveTab] = useState<CameraTab>('iso');
   const [showOverlays, setShowOverlays] = useState<boolean>(true);
 
   const getActiveImage = () => {
     switch (activeTab) {
+      case 'iso':
+        return isoCam || frontCam || overheadCam;
       case 'front':
-        return frontCam || overheadCam;
+        return frontCam || isoCam || overheadCam;
       case 'overhead':
         return overheadCam || frontCam;
       case 'left':
@@ -36,7 +40,7 @@ export const CameraViewport: React.FC<CameraViewportProps> = ({
       case 'right':
         return rightWristCam;
       default:
-        return frontCam || overheadCam;
+        return isoCam || frontCam || overheadCam;
     }
   };
 
@@ -48,6 +52,18 @@ export const CameraViewport: React.FC<CameraViewportProps> = ({
       <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-900/90 border-b border-zinc-800">
         <div className="flex items-center gap-1.5 overflow-x-auto">
           <button
+            onClick={() => setActiveTab('iso')}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-mono font-medium transition-all ${
+              activeTab === 'iso'
+                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-[0_0_10px_rgba(16,185,129,0.2)]'
+                : 'text-zinc-400 hover:text-white hover:bg-zinc-800/60'
+            }`}
+          >
+            <Box className="w-3.5 h-3.5" />
+            3D Isometric
+          </button>
+
+          <button
             onClick={() => setActiveTab('front')}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-mono font-medium transition-all ${
               activeTab === 'front'
@@ -56,7 +72,7 @@ export const CameraViewport: React.FC<CameraViewportProps> = ({
             }`}
           >
             <Eye className="w-3.5 h-3.5" />
-            3D Cinematic
+            3D Front (Centered)
           </button>
 
           <button
@@ -121,16 +137,16 @@ export const CameraViewport: React.FC<CameraViewportProps> = ({
         </div>
       </div>
 
-      {/* Main Viewport Content */}
-      <div className="relative bg-black aspect-[4/3] w-full flex items-center justify-center overflow-hidden group">
+      {/* Main Viewport Content with Perfect Framing */}
+      <div className="relative bg-[#020204] aspect-[4/3] w-full flex items-center justify-center overflow-hidden group">
         {activeTab !== 'grid' ? (
           <>
-            {/* Primary High-Res Stream */}
+            {/* Primary High-Res Stream (Contain mode prevents any cut-off) */}
             {activeImgSrc ? (
               <img
                 src={`data:image/jpeg;base64,${activeImgSrc}`}
                 alt="Primary MuJoCo Camera Feed"
-                className="w-full h-full object-cover select-none"
+                className="w-full h-full object-contain select-none"
               />
             ) : (
               <div className="flex flex-col items-center justify-center text-zinc-500 gap-2 font-mono text-xs">
@@ -151,7 +167,6 @@ export const CameraViewport: React.FC<CameraViewportProps> = ({
                       style={{ left: `${leftPct}%`, top: `${topPct}%` }}
                       className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center transition-all duration-100"
                     >
-                      {/* Reticle brackets */}
                       <div className="w-7 h-7 border border-emerald-400/80 rounded relative shadow-[0_0_8px_rgba(16,185,129,0.4)]">
                         <div className="absolute -top-1 -left-1 w-2 h-2 border-t-2 border-l-2 border-emerald-400" />
                         <div className="absolute -top-1 -right-1 w-2 h-2 border-t-2 border-r-2 border-emerald-400" />
@@ -174,7 +189,7 @@ export const CameraViewport: React.FC<CameraViewportProps> = ({
                 <div className="flex items-center gap-2 bg-black/80 backdrop-blur-md border border-zinc-800/80 px-2.5 py-1 rounded-md text-white shadow-lg">
                   <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                   <span className="font-semibold uppercase text-zinc-300">
-                    {activeTab === 'front' ? '3D Cinematic' : activeTab.toUpperCase()}
+                    {activeTab === 'iso' ? '3D Isometric' : activeTab === 'front' ? '3D Front' : activeTab.toUpperCase()}
                   </span>
                   <span className="text-zinc-500">•</span>
                   <span className="text-emerald-400 font-bold">32 FPS</span>
@@ -196,8 +211,8 @@ export const CameraViewport: React.FC<CameraViewportProps> = ({
               </div>
             )}
 
-            {/* Picture-in-Picture (PiP) Wrist Cameras (when viewing Front or Overhead) */}
-            {(activeTab === 'front' || activeTab === 'overhead') && (
+            {/* Picture-in-Picture (PiP) Wrist Cameras (when viewing 3D or Overhead) */}
+            {(activeTab === 'iso' || activeTab === 'front' || activeTab === 'overhead') && (
               <div className="absolute bottom-3 right-3 flex items-center gap-2 pointer-events-auto">
                 {leftWristCam && (
                   <div
@@ -234,25 +249,22 @@ export const CameraViewport: React.FC<CameraViewportProps> = ({
             )}
           </>
         ) : (
-          /* Quad Grid View (All 4 Cameras Synchronized) */
+          /* Quad Grid View */
           <div className="grid grid-cols-2 grid-rows-2 w-full h-full gap-1 p-1 bg-zinc-950">
-            {/* 1. 3D Front */}
             <div className="relative bg-black rounded overflow-hidden border border-zinc-800">
-              {frontCam && <img src={`data:image/jpeg;base64,${frontCam}`} alt="3D Front" className="w-full h-full object-cover" />}
+              {isoCam && <img src={`data:image/jpeg;base64,${isoCam}`} alt="3D Isometric" className="w-full h-full object-contain" />}
               <span className="absolute top-1 left-1 bg-black/70 px-1.5 py-0.5 rounded text-[10px] font-mono text-emerald-400 font-bold">
-                1. 3D CINEMATIC
+                1. 3D ISOMETRIC
               </span>
             </div>
 
-            {/* 2. Overhead */}
             <div className="relative bg-black rounded overflow-hidden border border-zinc-800">
-              {overheadCam && <img src={`data:image/jpeg;base64,${overheadCam}`} alt="Overhead" className="w-full h-full object-cover" />}
+              {frontCam && <img src={`data:image/jpeg;base64,${frontCam}`} alt="3D Front" className="w-full h-full object-contain" />}
               <span className="absolute top-1 left-1 bg-black/70 px-1.5 py-0.5 rounded text-[10px] font-mono text-emerald-400 font-bold">
-                2. OVERHEAD HUD
+                2. 3D FRONT
               </span>
             </div>
 
-            {/* 3. Left Wrist */}
             <div className="relative bg-black rounded overflow-hidden border border-zinc-800">
               {leftWristCam && <img src={`data:image/jpeg;base64,${leftWristCam}`} alt="Left Wrist" className="w-full h-full object-cover" />}
               <span className="absolute top-1 left-1 bg-black/70 px-1.5 py-0.5 rounded text-[10px] font-mono text-zinc-300 font-bold">
@@ -260,7 +272,6 @@ export const CameraViewport: React.FC<CameraViewportProps> = ({
               </span>
             </div>
 
-            {/* 4. Right Wrist */}
             <div className="relative bg-black rounded overflow-hidden border border-zinc-800">
               {rightWristCam && <img src={`data:image/jpeg;base64,${rightWristCam}`} alt="Right Wrist" className="w-full h-full object-cover" />}
               <span className="absolute top-1 left-1 bg-black/70 px-1.5 py-0.5 rounded text-[10px] font-mono text-zinc-300 font-bold">
