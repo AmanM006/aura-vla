@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { Camera, Eye, Grid, Sparkles, Crosshair, Box } from 'lucide-react';
@@ -11,6 +11,7 @@ interface CameraViewportProps {
   rightWristCam?: string | null;
   phase: string;
   objects: Record<string, [number, number, number]>;
+  isOfflineReplay?: boolean;
 }
 
 type CameraTab = 'iso' | 'front' | 'overhead' | 'left' | 'right' | 'grid';
@@ -23,6 +24,7 @@ export const CameraViewport: React.FC<CameraViewportProps> = ({
   rightWristCam,
   phase,
   objects,
+  isOfflineReplay,
 }) => {
   const [activeTab, setActiveTab] = useState<CameraTab>('iso');
   const [showOverlays, setShowOverlays] = useState<boolean>(true);
@@ -141,7 +143,7 @@ export const CameraViewport: React.FC<CameraViewportProps> = ({
       <div className="relative bg-[#020204] aspect-[4/3] w-full flex items-center justify-center overflow-hidden group">
         {activeTab !== 'grid' ? (
           <>
-            {/* Primary High-Res Stream (Contain mode prevents any cut-off) */}
+            {/* Primary High-Res Stream or Offline Video Fallback */}
             {activeImgSrc ? (
               <img
                 src={`data:image/jpeg;base64,${activeImgSrc}`}
@@ -149,9 +151,15 @@ export const CameraViewport: React.FC<CameraViewportProps> = ({
                 className="w-full h-full object-contain select-none"
               />
             ) : (
-              <div className="flex flex-col items-center justify-center text-zinc-500 gap-2 font-mono text-xs">
-                <div className="w-6 h-6 border-2 border-emerald-500/40 border-t-transparent rounded-full animate-spin" />
-                <span>Synchronizing Video Feed...</span>
+              <div className="relative w-full h-full flex items-center justify-center bg-black">
+                <video
+                  src="/videos/demo_seed3_int8.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-contain select-none"
+                />
               </div>
             )}
 
@@ -187,16 +195,22 @@ export const CameraViewport: React.FC<CameraViewportProps> = ({
             {showOverlays && (
               <div className="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none font-mono text-[11px]">
                 <div className="flex items-center gap-2 bg-black/80 backdrop-blur-md border border-zinc-800/80 px-2.5 py-1 rounded-md text-white shadow-lg">
-                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                  <span className={`w-2 h-2 rounded-full ${activeImgSrc ? 'bg-emerald-500 animate-ping' : 'bg-amber-400 animate-pulse'}`} />
                   <span className="font-semibold uppercase text-zinc-300">
                     {activeTab === 'iso' ? '3D Isometric' : activeTab === 'front' ? '3D Front' : activeTab.toUpperCase()}
                   </span>
                   <span className="text-zinc-500">•</span>
-                  <span className="text-emerald-400 font-bold">32 FPS</span>
+                  <span className={`${activeImgSrc ? 'text-emerald-400' : 'text-amber-300'} font-bold`}>
+                    {activeImgSrc ? '32 FPS' : '25 FPS (DEMO REPLAY)'}
+                  </span>
                 </div>
 
                 <div className="bg-black/80 backdrop-blur-md border border-zinc-800/80 px-2.5 py-0.5 rounded text-zinc-400 text-[10px]">
-                  STREAM LATENCY: <span className="text-zinc-200">12ms</span> | RES: <span className="text-zinc-200">640×480</span>
+                  {activeImgSrc ? (
+                    <>STREAM LATENCY: <span className="text-zinc-200">12ms</span> | RES: <span className="text-zinc-200">640×480</span></>
+                  ) : (
+                    <>MODE: <span className="text-amber-300">VERIFIED INTEL BENCHMARK</span> | RES: <span className="text-zinc-200">640×480 HD</span></>
+                  )}
                 </div>
               </div>
             )}

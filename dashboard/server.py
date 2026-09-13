@@ -119,6 +119,10 @@ STATIC_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 NEXT_OUT_DIR = ROOT / "dashboard-ui" / "out"
+NEXT_VIDEOS_DIR = ROOT / "dashboard-ui" / "public" / "videos"
+NEXT_VIDEOS_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/videos", StaticFiles(directory=str(NEXT_VIDEOS_DIR)), name="public_videos")
+
 if (NEXT_OUT_DIR / "_next").exists():
     app.mount("/_next", StaticFiles(directory=str(NEXT_OUT_DIR / "_next")), name="next_assets")
 

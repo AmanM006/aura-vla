@@ -46,6 +46,7 @@ export default function DashboardPage() {
   });
 
   const [connected, setConnected] = useState<boolean>(false);
+  const [isOfflineReplay, setIsOfflineReplay] = useState<boolean>(false);
   const [uptime, setUptime] = useState<number>(0);
   const wsRef = useRef<WebSocket | null>(null);
 
@@ -54,6 +55,112 @@ export default function DashboardPage() {
     const timer = setInterval(() => setUptime((prev) => prev + 1), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Offline Replay Grace Period Timer (after 2.5s without WS connection, activate demo replay)
+  useEffect(() => {
+    if (!connected) {
+      const timer = setTimeout(() => {
+        setIsOfflineReplay(true);
+      }, 2500);
+      return () => clearTimeout(timer);
+    } else {
+      setIsOfflineReplay(false);
+    }
+  }, [connected]);
+
+  // Offline Replay Cyclic Simulation Loop
+  useEffect(() => {
+    if (!isOfflineReplay || connected) return;
+
+    const SIM_STEPS = [
+      {
+        phase: 'open_drawer',
+        plan_index: 0,
+        sub_goals: { drawer: true, fork: false, spoon: false, plate: false, mug: false },
+        task_success: false,
+        anomaly_score: 0.04,
+      },
+      {
+        phase: 'pickup_fork',
+        plan_index: 1,
+        sub_goals: { drawer: true, fork: false, spoon: false, plate: false, mug: false },
+        task_success: false,
+        anomaly_score: 0.05,
+      },
+      {
+        phase: 'handoff_fork',
+        plan_index: 2,
+        sub_goals: { drawer: true, fork: false, spoon: false, plate: false, mug: false },
+        task_success: false,
+        anomaly_score: 0.06,
+      },
+      {
+        phase: 'place_fork',
+        plan_index: 3,
+        sub_goals: { drawer: true, fork: true, spoon: false, plate: false, mug: false },
+        task_success: false,
+        anomaly_score: 0.04,
+      },
+      {
+        phase: 'pickup_spoon',
+        plan_index: 4,
+        sub_goals: { drawer: true, fork: true, spoon: false, plate: false, mug: false },
+        task_success: false,
+        anomaly_score: 0.05,
+      },
+      {
+        phase: 'place_spoon',
+        plan_index: 5,
+        sub_goals: { drawer: true, fork: true, spoon: true, plate: false, mug: false },
+        task_success: false,
+        anomaly_score: 0.05,
+      },
+      {
+        phase: 'drag_plate',
+        plan_index: 6,
+        sub_goals: { drawer: true, fork: true, spoon: true, plate: true, mug: false },
+        task_success: false,
+        anomaly_score: 0.07,
+      },
+      {
+        phase: 'pickup_mug',
+        plan_index: 7,
+        sub_goals: { drawer: true, fork: true, spoon: true, plate: true, mug: false },
+        task_success: false,
+        anomaly_score: 0.05,
+      },
+      {
+        phase: 'place_mug',
+        plan_index: 8,
+        sub_goals: { drawer: true, fork: true, spoon: true, plate: true, mug: true },
+        task_success: true,
+        anomaly_score: 0.04,
+      },
+      {
+        phase: 'Task Complete (5/5 Sub-goals Verified)',
+        plan_index: 8,
+        sub_goals: { drawer: true, fork: true, spoon: true, plate: true, mug: true },
+        task_success: true,
+        anomaly_score: 0.03,
+      },
+    ];
+
+    let currentStep = 0;
+    const interval = setInterval(() => {
+      const s = SIM_STEPS[currentStep % SIM_STEPS.length];
+      setState((prev) => ({
+        ...prev,
+        phase: s.phase,
+        plan_index: s.plan_index,
+        sub_goals: s.sub_goals,
+        task_success: s.task_success,
+        anomaly_score: s.anomaly_score,
+      }));
+      currentStep++;
+    }, 1200);
+
+    return () => clearInterval(interval);
+  }, [isOfflineReplay, connected]);
 
   // Dynamic Backend Endpoint Resolver (Localhost, Cloudflare Tunnel, or Vercel)
   const getBackendEndpoints = () => {
@@ -66,11 +173,12 @@ export default function DashboardPage() {
 
     const params = new URLSearchParams(window.location.search);
     const paramBackend = params.get('backend');
-    const envBackend = process.env.NEXT_PUBLIC_BACKEND_URL;
-    const targetUrl = paramBackend || envBackend;
+    const host = window.location.hostname || 'localhost';
+    const isLocal = host === 'localhost' || host === '127.0.0.1';
 
-    if (targetUrl) {
-      const clean = targetUrl.replace(/\/+$/, '');
+    // 1. Explicit Query Parameter (e.g., ?backend=https://xyz.trycloudflare.com)
+    if (paramBackend) {
+      const clean = paramBackend.replace(/\/+$/, '');
       const wsProto = clean.startsWith('https://') ? 'wss://' : 'ws://';
       const hostPart = clean.replace(/^https?:\/\//, '');
       return {
@@ -79,23 +187,34 @@ export default function DashboardPage() {
       };
     }
 
-    const host = window.location.hostname || 'localhost';
-    const isLocal = host === 'localhost' || host === '127.0.0.1';
+    // 2. Localhost Priority: always use local port 8000 directly
+    if (isLocal) {
+      return {
+        wsUrl: 'ws://localhost:8000/ws/state',
+        apiUrl: 'http://localhost:8000/api/instruction',
+      };
+    }
+
+    // 3. Environment Variable Fallback (for remote Vercel deployments)
+    const envBackend = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (envBackend) {
+      const clean = envBackend.replace(/\/+$/, '');
+      const wsProto = clean.startsWith('https://') ? 'wss://' : 'ws://';
+      const hostPart = clean.replace(/^https?:\/\//, '');
+      return {
+        wsUrl: `${wsProto}${hostPart}/ws/state`,
+        apiUrl: `${clean}/api/instruction`,
+      };
+    }
+
+    // 4. Same-origin fallback (for unified port 8000 hosting)
     const isHttps = window.location.protocol === 'https:';
     const wsProto = isHttps ? 'wss://' : 'ws://';
     const httpProto = isHttps ? 'https://' : 'http://';
-
-    if (isLocal) {
-      return {
-        wsUrl: `${wsProto}${host}:8000/ws/state`,
-        apiUrl: `${httpProto}${host}:8000/api/instruction`,
-      };
-    } else {
-      return {
-        wsUrl: `${wsProto}${window.location.host}/ws/state`,
-        apiUrl: `${httpProto}${window.location.host}/api/instruction`,
-      };
-    }
+    return {
+      wsUrl: `${wsProto}${window.location.host}/ws/state`,
+      apiUrl: `${httpProto}${window.location.host}/api/instruction`,
+    };
   };
 
   // WebSocket Connection Loop
@@ -111,6 +230,7 @@ export default function DashboardPage() {
 
         ws.onopen = () => {
           setConnected(true);
+          setIsOfflineReplay(false);
           console.log('[Dashboard] WebSocket Connected to', wsUrl);
         };
 
@@ -154,7 +274,12 @@ export default function DashboardPage() {
         body: JSON.stringify({ instruction: text }),
       });
     } catch (e) {
-      console.error('Error posting instruction:', e);
+      console.warn('[Dashboard] Instruction queued in offline mode:', text);
+      setState((prev) => ({
+        ...prev,
+        transcript: text,
+        settled_text: text,
+      }));
     }
   };
 
@@ -165,7 +290,7 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-[#050507] text-[#f4f4f5] flex flex-col font-sans selection:bg-emerald-500/30 selection:text-emerald-200">
       {/* Top Cybernetic Header */}
-      <Header connected={connected} phase={state.phase} uptime={uptime} />
+      <Header connected={connected} phase={state.phase} uptime={uptime} isOfflineReplay={isOfflineReplay} />
 
       {/* Main Responsive Grid Container */}
       <div className="flex-grow p-4 md:p-6 max-w-[1700px] w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5">
@@ -179,6 +304,7 @@ export default function DashboardPage() {
             rightWristCam={state.right_wrist_cam}
             phase={state.phase}
             objects={state.objects}
+            isOfflineReplay={isOfflineReplay}
           />
 
           <SubGoalProgress

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { Cpu, Wifi, WifiOff, Activity } from 'lucide-react';
@@ -7,9 +7,10 @@ interface HeaderProps {
   connected: boolean;
   phase: string;
   uptime: number;
+  isOfflineReplay?: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({ connected, phase, uptime }) => {
+export const Header: React.FC<HeaderProps> = ({ connected, phase, uptime, isOfflineReplay }) => {
   const formatUptime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -55,7 +56,9 @@ export const Header: React.FC<HeaderProps> = ({ connected, phase, uptime }) => {
         <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-medium border ${
           connected 
             ? 'bg-emerald-950/60 text-emerald-400 border-emerald-500/40 shadow-[0_0_10px_rgba(16,185,129,0.2)]' 
-            : 'bg-rose-950/60 text-rose-400 border-rose-500/40'
+            : isOfflineReplay
+            ? 'bg-amber-950/60 text-amber-300 border-amber-500/40 shadow-[0_0_10px_rgba(245,158,11,0.2)]'
+            : 'bg-zinc-900 text-zinc-400 border-zinc-700'
         }`}>
           {connected ? (
             <>
@@ -63,10 +66,16 @@ export const Header: React.FC<HeaderProps> = ({ connected, phase, uptime }) => {
               <Wifi className="w-3.5 h-3.5" />
               <span>LIVE WS</span>
             </>
+          ) : isOfflineReplay ? (
+            <>
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+              <Activity className="w-3.5 h-3.5" />
+              <span>OFFLINE REPLAY (DEMO)</span>
+            </>
           ) : (
             <>
               <WifiOff className="w-3.5 h-3.5" />
-              <span>OFFLINE</span>
+              <span>CONNECTING...</span>
             </>
           )}
         </div>
