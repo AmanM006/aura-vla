@@ -85,6 +85,7 @@ class ScriptedController:
         }
 
         self.current_ctrl = self.poses["home"].copy()
+        self.last_target_pose = self.poses["home"].copy()
         self.data.ctrl[:12] = self.current_ctrl
         self.log: list[str] = []
 
@@ -106,7 +107,7 @@ class ScriptedController:
             v_adr = self.model.jnt_dofadr[jnt_id]
             self.data.qvel[v_adr : v_adr + 6] = 0.0
 
-    def step(self, model: mujoco.MjModel, data: mujoco.MjData) -> bool:
+    def step(self, model: mujoco.MjModel, data: mujoco.MjData, override_ctrl: Optional[np.ndarray] = None) -> bool:
         """Execute one control step at simulation frequency."""
         self.model = model
         self.data = data
@@ -217,8 +218,14 @@ class ScriptedController:
         for bid, pos in self.settled_objects.items():
             self._set_freebody_pos(bid, pos, np.array([1.0, 0.0, 0.0, 0.0]))
 
-        # Apply smooth control
-        data.ctrl[:12] = target_pose
+        # Store teacher planned target pose
+        self.last_target_pose = target_pose.copy()
+
+        # Apply smooth control (override with neural action if supplied)
+        if override_ctrl is not None:
+            data.ctrl[:12] = override_ctrl
+        else:
+            data.ctrl[:12] = target_pose
         mujoco.mj_step(model, data)
 
         self.step_in_phase += 1

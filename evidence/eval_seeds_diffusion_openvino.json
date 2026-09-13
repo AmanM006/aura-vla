@@ -1,0 +1,185 @@
+{
+  "policy": "diffusion_openvino",
+  "device": "CPU",
+  "seeds_evaluated": 10,
+  "task_success_count": 10,
+  "task_success_rate": 1.0,
+  "subgoals_achieved": 50,
+  "total_possible_subgoals": 50,
+  "subgoal_success_rate": 1.0,
+  "bimanual_coordination_rate": 1.0,
+  "handoff_rate": 1.0,
+  "mean_trajectory_tracking_error_mm": 227.914,
+  "seeds_detail": [
+    {
+      "seed": 0,
+      "steps": 2001,
+      "subgoals_passed": 5,
+      "task_success": true,
+      "sequencing": 5,
+      "bimanual": true,
+      "handoff": true,
+      "mean_drift_mm": 236.258,
+      "sub_goals": {
+        "drawer_open": true,
+        "fork_placed": true,
+        "spoon_placed": true,
+        "plate_placed": true,
+        "mug_placed": true
+      }
+    },
+    {
+      "seed": 1,
+      "steps": 2001,
+      "subgoals_passed": 5,
+      "task_success": true,
+      "sequencing": 5,
+      "bimanual": true,
+      "handoff": true,
+      "mean_drift_mm": 224.793,
+      "sub_goals": {
+        "drawer_open": true,
+        "fork_placed": true,
+        "spoon_placed": true,
+        "plate_placed": true,
+        "mug_placed": true
+      }
+    },
+    {
+      "seed": 2,
+      "steps": 2001,
+      "subgoals_passed": 5,
+      "task_success": true,
+      "sequencing": 5,
+      "bimanual": true,
+      "handoff": true,
+      "mean_drift_mm": 215.195,
+      "sub_goals": {
+        "drawer_open": true,
+        "fork_placed": true,
+        "spoon_placed": true,
+        "plate_placed": true,
+        "mug_placed": true
+      }
+    },
+    {
+      "seed": 3,
+      "steps": 2001,
+      "subgoals_passed": 5,
+      "task_success": true,
+      "sequencing": 5,
+      "bimanual": true,
+      "handoff": true,
+      "mean_drift_mm": 216.486,
+      "sub_goals": {
+        "drawer_open": true,
+        "fork_placed": true,
+        "spoon_placed": true,
+        "plate_placed": true,
+        "mug_placed": true
+      }
+    },
+    {
+      "seed": 4,
+      "steps": 2001,
+      "subgoals_passed": 5,
+      "task_success": true,
+      "sequencing": 5,
+      "bimanual": true,
+      "handoff": true,
+      "mean_drift_mm": 230.41,
+      "sub_goals": {
+        "drawer_open": true,
+        "fork_placed": true,
+        "spoon_placed": true,
+        "plate_placed": true,
+        "mug_placed": true
+      }
+    },
+    {
+      "seed": 5,
+      "steps": 2001,
+      "subgoals_passed": 5,
+      "task_success": true,
+      "sequencing": 5,
+      "bimanual": true,
+      "handoff": true,
+      "mean_drift_mm": 237.387,
+      "sub_goals": {
+        "drawer_open": true,
+        "fork_placed": true,
+        "spoon_placed": true,
+        "plate_placed": true,
+        "mug_placed": true
+      }
+    },
+    {
+      "seed": 6,
+      "steps": 2001,
+      "subgoals_passed": 5,
+      "task_success": true,
+      "sequencing": 5,
+      "bimanual": true,
+      "handoff": true,
+      "mean_drift_mm": 229.147,
+      "sub_goals": {
+        "drawer_open": true,
+        "fork_placed": true,
+        "spoon_placed": true,
+        "plate_placed": true,
+        "mug_placed": true
+      }
+    },
+    {
+      "seed": 7,
+      "steps": 2001,
+      "subgoals_passed": 5,
+      "task_success": true,
+      "sequencing": 5,
+      "bimanual": true,
+      "handoff": true,
+      "mean_drift_mm": 232.683,
+      "sub_goals": {
+        "drawer_open": true,
+        "fork_placed": true,
+        "spoon_placed": true,
+        "plate_placed": true,
+        "mug_placed": true
+      }
+    },
+    {
+      "seed": 8,
+      "steps": 2001,
+      "subgoals_passed": 5,
+      "task_success": true,
+      "sequencing": 5,
+      "bimanual": true,
+      "handoff": true,
+      "mean_drift_mm": 224.984,
+      "sub_goals": {
+        "drawer_open": true,
+        "fork_placed": true,
+        "spoon_placed": true,
+        "plate_placed": true,
+        "mug_placed": true
+      }
+    },
+    {
+      "seed": 9,
+      "steps": 2001,
+      "subgoals_passed": 5,
+      "task_success": true,
+      "sequencing": 5,
+      "bimanual": true,
+      "handoff": true,
+      "mean_drift_mm": 231.803,
+      "sub_goals": {
+        "drawer_open": true,
+        "fork_placed": true,
+        "spoon_placed": true,
+        "plate_placed": true,
+        "mug_placed": true
+      }
+    }
+  ]
+}

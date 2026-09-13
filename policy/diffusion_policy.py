@@ -248,6 +248,10 @@ class DiffusionPolicy(nn.Module):
         self.register_buffer("sqrt_alphas_cumprod", torch.sqrt(alphas_cumprod))
         self.register_buffer("sqrt_one_minus_alphas_cumprod", torch.sqrt(1.0 - alphas_cumprod))
 
+        # OpenVINO acceleration runtime handle
+        self.ov_infer_request = None
+        self.ov_compiled_model = None
+
     def encode_conditioning(
         self,
         obs_state: torch.Tensor,
@@ -335,7 +339,15 @@ class DiffusionPolicy(nn.Module):
 
         for i, t in enumerate(step_indices):
             t_tensor = torch.full((B,), t, device=obs_state.device, dtype=torch.long)
-            pred_noise = self.denoising_net(actions, t_tensor, cond_seq)
+            if self.ov_infer_request is not None:
+                act_np = actions.detach().cpu().numpy().astype(np.float32)
+                t_np = t_tensor.detach().cpu().numpy().astype(np.int64)
+                cond_np = cond_seq.detach().cpu().numpy().astype(np.float32)
+                self.ov_infer_request.infer([act_np, t_np, cond_np])
+                pred_noise_np = self.ov_infer_request.get_output_tensor().data
+                pred_noise = torch.from_numpy(pred_noise_np).to(obs_state.device)
+            else:
+                pred_noise = self.denoising_net(actions, t_tensor, cond_seq)
 
             alpha_t = self.alphas_cumprod[t]
             alpha_prev = self.alphas_cumprod[step_indices[i + 1]] if i < len(step_indices) - 1 else torch.tensor(1.0)
@@ -346,6 +358,73 @@ class DiffusionPolicy(nn.Module):
             actions = torch.sqrt(alpha_prev) * pred_x0 + dir_xt
 
         return actions[0].cpu().numpy()
+
+    @torch.no_grad()
+    def predict_action(
+        self,
+        obs_state: np.ndarray | torch.Tensor,
+        images: List[np.ndarray | torch.Tensor] | np.ndarray | torch.Tensor,
+        instruction: str = "set the dinner table",
+        denoise_steps: int = 16,
+    ) -> np.ndarray:
+        """High-level evaluation API accepting raw NumPy observations and images."""
+        if isinstance(obs_state, np.ndarray):
+            obs_t = torch.from_numpy(obs_state).float().to(self.device)
+        else:
+            obs_t = obs_state.float().to(self.device)
+        if obs_t.ndim == 1:
+            obs_t = obs_t.unsqueeze(0)
+
+        # Preprocess images
+        if isinstance(images, (list, tuple)):
+            img_list = []
+            for img in images:
+                if isinstance(img, np.ndarray):
+                    if img.ndim == 3 and img.shape[-1] == 3:
+                        t = torch.from_numpy(img.transpose(2, 0, 1)).float()
+                    else:
+                        t = torch.from_numpy(img).float()
+                    if t.max() > 1.0:
+                        t = t / 255.0
+                    img_list.append(t.unsqueeze(0).to(self.device))
+                else:
+                    img_list.append(img.to(self.device))
+            img_arg = img_list
+        elif isinstance(images, np.ndarray):
+            if images.ndim == 4 and images.shape[-1] == 3:
+                t = torch.from_numpy(images.transpose(0, 3, 1, 2)).float()
+            else:
+                t = torch.from_numpy(images).float()
+            if t.max() > 1.0:
+                t = t / 255.0
+            img_arg = t.unsqueeze(0).to(self.device)
+        else:
+            img_arg = images
+
+        return self.sample_actions(
+            obs_state=obs_t,
+            images=img_arg,
+            instruction=instruction,
+            n_inference_steps=denoise_steps,
+        )
+
+    def load_openvino(self, xml_path: Path | str, device: str = "CPU") -> bool:
+        """Loads compiled OpenVINO IR model for fast denoising net acceleration."""
+        try:
+            import openvino as ov
+            core = ov.Core()
+            p = Path(xml_path)
+            if not p.exists():
+                return False
+            model = core.read_model(str(p))
+            available = core.available_devices
+            target = device if device in available else "CPU"
+            self.ov_compiled_model = core.compile_model(model, target)
+            self.ov_infer_request = self.ov_compiled_model.create_infer_request()
+            return True
+        except Exception:
+            self.ov_infer_request = None
+            return False
 
     def save(self, path: Path | str) -> None:
         p = Path(path)

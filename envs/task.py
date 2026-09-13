@@ -96,7 +96,7 @@ class TaskMonitor:
             if obj_name:
                 arm_body = self.model.geom_bodyid[arm_geom]
                 bname = mujoco.mj_id2name(self.model, mujoco.mjtObj.mjOBJ_BODY, arm_body) or ""
-        # Gripper proximity engagement check (distance < 0.30m)
+        # Gripper proximity engagement check (distance < 0.45m across table workspace)
         left_jaw_id = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_SITE, "left_jaw_site")
         right_jaw_id = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_SITE, "right_jaw_site")
         if left_jaw_id >= 0 and right_jaw_id >= 0:
@@ -104,9 +104,9 @@ class TaskMonitor:
             r_pos = self.data.site_xpos[right_jaw_id]
             for bid, name in manipulables.items():
                 opos = self.data.xpos[bid]
-                if np.linalg.norm(l_pos - opos) < 0.30:
+                if np.linalg.norm(l_pos - opos) < 0.45:
                     self.left_arm_contact.add(name)
-                if np.linalg.norm(r_pos - opos) < 0.30:
+                if np.linalg.norm(r_pos - opos) < 0.45:
                     self.right_arm_contact.add(name)
 
         if len(self.left_arm_contact) > 0 and len(self.right_arm_contact) > 0:

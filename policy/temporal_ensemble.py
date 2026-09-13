@@ -64,6 +64,18 @@ class TemporalEnsemble:
         """Determines if the policy network needs to be evaluated at this step."""
         return (step % self.query_stride) == 0
 
+    def needs_query(self, step: Optional[int] = None) -> bool:
+        """Determines if the policy network needs to be evaluated at this step (supports no-arg call)."""
+        target_step = step if step is not None else self._total_steps
+        return (target_step % self.query_stride) == 0
+
+    def step(self, chunk: Optional[np.ndarray] = None) -> np.ndarray:
+        """Advances temporal ensemble by one step, optionally ingesting a new chunk."""
+        if chunk is not None:
+            self.add_chunk(chunk, query_step=self._total_steps)
+        action = self.get_action(self._total_steps)
+        return action
+
     def add_chunk(self, chunk: np.ndarray, query_step: int) -> None:
         """Ingests a newly predicted trajectory chunk into the overlapping buffer.
 

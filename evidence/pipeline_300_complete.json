@@ -1,0 +1,67 @@
+{
+  "status": "COMPLETED",
+  "total_episodes": 300,
+  "dataset_npz": "C:\\Users\\cheer\\Documents\\lab\\hackathon\\data\\demos\\diffusion_300_dataset.npz",
+  "collection_time_s": 2143.83,
+  "training": {
+    "train_loss_history": [
+      0.2872296684691983,
+      0.08924803319370447,
+      0.06946664575928001,
+      0.06096464223278466,
+      0.05650205870816571,
+      0.0482245799100634,
+      0.04347464092422985,
+      0.039637469596439795,
+      0.035154455838771706,
+      0.031533278090926056,
+      0.030092660798340717,
+      0.02811091219652511,
+      0.026484118547544257,
+      0.02578231654927722,
+      0.024799349574258677
+    ],
+    "val_loss_history": [
+      0.09474737629775078,
+      0.0805742250334832,
+      0.0692763988289141,
+      0.056364092615342906,
+      0.04817882901237857,
+      0.04414608047133492,
+      0.04170836532308209,
+      0.04074308991191849,
+      0.03287648631920738,
+      0.03096679519982107,
+      0.031314938839885495,
+      0.026550271097690828,
+      0.025103620343631314,
+      0.026551682441945997,
+      0.02463408030809895
+    ],
+    "best_val_loss": 0.02463,
+    "total_time_s": 4569.01,
+    "total_samples": 9900,
+    "epochs": 15
+  },
+  "openvino_benchmark": {
+    "CPU": {
+      "matched_device": "CPU",
+      "step_mean_ms": 1.89,
+      "step_p50_ms": 1.741,
+      "step_p95_ms": 2.663,
+      "full_16step_trajectory_ms": 30.24,
+      "trajectories_per_sec": 33.1
+    },
+    "GPU": {
+      "matched_device": "GPU",
+      "step_mean_ms": 3.53,
+      "step_p50_ms": 3.339,
+      "step_p95_ms": 4.824,
+      "full_16step_trajectory_ms": 56.49,
+      "trajectories_per_sec": 17.7
+    }
+  },
+  "checkpoint_path": "C:\\Users\\cheer\\Documents\\lab\\hackathon\\models\\diffusion_policy.pt",
+  "ir_directory": "C:\\Users\\cheer\\Documents\\lab\\hackathon\\models\\diffusion_openvino",
+  "completed_at": "2026-09-14T03:36:40+0530"
+}

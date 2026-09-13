@@ -47,7 +47,7 @@ class DiffusionDemoDataset(Dataset):
         self,
         demos_dir: Path,
         chunk_size: int = 16,
-        max_episodes: int = 100,
+        max_episodes: int = 500,
         stride: int = 1,
     ) -> None:
         super().__init__()
