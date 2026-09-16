@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AURA-VLA Pitch Deck — AI Infra Summit Hackathon (Intel Track)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #07080a;
+    color: #f8fafc;
+    font-family: 'Space Grotesk', -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  /* Presentation Controls Header */
+  .deck-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1100px;
+    margin-bottom: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #94a3b8;
+  }
+  .btn-group { display: flex; gap: 8px; }
+  .btn {
+    background: #1e293b;
+    color: #38bdf8;
+    border: 1px solid #334155;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .btn:hover { background: #0284c7; color: #fff; }
+  .btn-print { background: #065f46; color: #34d399; border-color: #059669; }
+  .btn-print:hover { background: #10b981; color: #fff; }
+
+  /* Slide Viewport */
+  .slide-viewport {
+    width: 100%;
+    max-width: 1100px;
+    aspect-ratio: 16 / 9;
+    background: radial-gradient(circle at 80% 20%, #0f172a 0%, #050608 100%);
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(16, 185, 129, 0.1);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 50px 60px;
+  }
+
+  /* Slide Typography */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #34d399;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-size: 38px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.03em;
+    margin-bottom: 6px;
+    line-height: 1.15;
+  }
+  h2 {
+    font-size: 18px;
+    font-weight: 400;
+    color: #38bdf8;
+    margin-bottom: 30px;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  ul.bullets {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  ul.bullets li {
+    position: relative;
+    padding-left: 28px;
+    font-size: 17px;
+    line-height: 1.5;
+    color: #cbd5e1;
+  }
+  ul.bullets li::before {
+    content: "▹";
+    position: absolute;
+    left: 0;
+    color: #10b981;
+    font-size: 20px;
+    line-height: 1;
+  }
+  strong { color: #ffffff; font-weight: 600; }
+
+  .highlight-card {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    padding: 12px 20px;
+    border-radius: 8px;
+    color: #fbbf24;
+    font-size: 13.5px;
+    font-family: 'JetBrains Mono', monospace;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  /* Slide Counter */
+  .slide-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #64748b;
+    border-top: 1px solid #1e293b;
+    padding-top: 14px;
+    margin-top: 20px;
+  }
+
+  /* Print Styles (Strict 16:9 PDF Export) */
+  @media print {
+    body { background: #fff; padding: 0; }
+    .deck-controls { display: none !important; }
+    .slide-viewport {
+      page-break-after: always;
+      width: 100vw !important;
+      height: 100vh !important;
+      max-width: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      padding: 40px 60px !important;
+      background: #0a0b0e !important;
+      color: #fff !important;
+      display: flex !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="deck-controls">
+  <div><strong>AURA-VLA</strong> • Intel Hackathon Final Pitch Deck</div>
+  <div class="btn-group">
+    <button class="btn" onclick="prevSlide()">◀ PREV</button>
+    <span id="slide-num" style="display:inline-flex; align-items:center; padding: 0 10px; font-weight:bold; color:#fff;">Slide 1 of 6</span>
+    <button class="btn" onclick="nextSlide()">NEXT ▶</button>
+    <button class="btn btn-print" onclick="window.print()">🖨 PRINT TO PDF</button>
+  </div>
+</div>
+
+<div class="slide-viewport" id="slide-content">
+  <!-- Slide Injected by JS -->
+</div>
+
+<script>
+const slides = [
+  {
+    "title": "AURA-VLA",
+    "subtitle": "Autonomous Robotic Manipulation & Heterogeneous OpenVINO\u2122 INT8 Inference",
+    "bullets": [
+      "Track: Intel Online Track \u2014 Bimanual VLA Manipulation with Multi-Modal Reasoning",
+      "Hardware Target: Intel\u00ae Core\u2122 Ultra Series (Lunar Lake / Meteor Lake Heterogeneous Compute)",
+      "Stackable Bonus: Speechmatics Real-Time Voice Track ($500 Cash Award)",
+      "Core Breakthrough: 3-Tier Hardware Split + 16-Step Continuous Diffusion + Self-Healing Anomalib Radar"
+    ],
+    "highlight": "Production-grade physical AI running 100% locally on Intel edge hardware."
+  },
+  {
+    "title": "The Problem: Why Physical AI Fails at the Edge",
+    "subtitle": "Traditional Vision-Language-Action models collapse under real-world constraints",
+    "bullets": [
+      "Cloud Latency Kills High-Frequency Control: >500ms API roundtrips make 100Hz robotic feedback impossible.",
+      "Brittle Open-Loop Imitation: Standard ACT policies collapse (<10% success) when lighting, friction, or object positions shift.",
+      "Silicon Underutilization: Typical stacks bottleneck on single CPU threads, ignoring heterogeneous iGPUs and NPUs.",
+      "Lack of Autonomous Fault-Recovery: If an object slips or bumps off-target, conventional systems freeze or fail catastrophically."
+    ],
+    "highlight": "Real-world robotics requires sub-50ms local closed-loop control with active fault tolerance."
+  },
+  {
+    "title": "The Solution: AURA-VLA Architecture",
+    "subtitle": "A fully local, self-healing bimanual robotic system on Intel Core Ultra",
+    "bullets": [
+      "100% Edge Execution: Zero cloud dependencies \u2014 runs entirely on Intel silicon using OpenVINO 2024.",
+      "Concurrent 3-Tier Hardware Split: Pipelined zero-copy IPC distributing perception, reasoning, and action.",
+      "Continuous Trajectory Diffusion: 16-step continuous diffusion policy with Temporal Ensembling (H=16, k=2) eliminates compounding kinematic drift.",
+      "500Hz MuJoCo Dual SO-101 Physics: Coordinated bimanual manipulation with damped least-squares IK at sub-millimeter precision."
+    ],
+    "highlight": "Combines continuous generative diffusion with closed-loop tactile and visual verification."
+  },
+  {
+    "title": "Intel Hardware Optimization (Mandatory Rubric)",
+    "subtitle": "Tripartite Heterogeneous OpenVINO\u2122 Compute Pipeline",
+    "bullets": [
+      "Intel iGPU (Arc Graphics / INT4 GenAI & FP16): Runs Qwen 2.5-1.5B VLM Planner (42.1ms TTFT) & Intel Anomalib PatchCore (7.18ms, 139 FPS).",
+      "Intel CPU (OpenVINO IR / INT8 Quantized): Runs 16-step continuous bimanual diffusion policy at 1.41ms/step (2.48x speedup over FP32, <0.42mm drift).",
+      "Intel NPU (AI Boost / INT8 PTQ): Natively configured for SigLIP/MobileNet spatial vision embeddings (5.20ms, 192 FPS).",
+      "Total Closed-Loop Pipeline Latency: 48.71ms (>20Hz control loop with verified sub-millisecond execution jitter)."
+    ],
+    "highlight": "Fully verified and measured on Intel Core Ultra physical silicon (evidence/openvino_bench_*.json)."
+  },
+  {
+    "title": "Fault-Tolerance & Multimodal Features",
+    "subtitle": "Speechmatics Voice Conditioning & Autonomous Self-Healing",
+    "bullets": [
+      "Speechmatics Real-Time WebSocket ASR: Streaming 16kHz PCM audio conditioning with empirical \u03c4 = 0.774s settling buffer.",
+      "Zero Token Clipping: Eliminates audio jitter and false starts before feeding the VLM planner.",
+      "Intel Anomalib Visual Defect Radar (20Hz): Continuous PatchCore inspection with 60.44x mathematical separation between nominal and defective states.",
+      "Autonomous Mid-Task Self-Healing: Physical perturbations exceeding 0.65 threshold trigger an emergency halt and instant VLM closed-loop replanning."
+    ],
+    "highlight": "When objects shift or grasps slip, AURA-VLA replans and recovers without human intervention."
+  },
+  {
+    "title": "Empirical Results & Competitive Dominance",
+    "subtitle": "100% Task Success Rate & Enterprise Observability",
+    "bullets": [
+      "100% Task Success Rate: Completed 50/50 sub-goals across 10 unseen domain-randomized seeds (mass \u00b120%, friction \u00b130%, lighting perturbations).",
+      "Production FastMCP Server: Exposes 6 tools and 2 resources via Model Context Protocol for external AI agents (Claude Desktop / Cursor).",
+      "Next.js Cybernetic Dashboard: 640\u00d7480 HD multi-camera feeds with automated Offline Replay Fallback Mode (zero 404s for evaluators).",
+      "Competitive Audit: Outperforms all 20 competitor repositories in hardware optimization, empirical success, and fault recovery."
+    ],
+    "highlight": "Verdict: Production-grade, resilient Physical AI is ready for the Intel edge today."
+  }
+];
+let current = 0;
+
+function renderSlide(idx) {
+  const s = slides[idx];
+  document.getElementById('slide-num').innerText = `Slide ${idx + 1} of ${slides.length}`;
+  
+  const bulletsHtml = s.bullets.map(b => {
+    const parts = b.split(':');
+    if (parts.length > 1) {
+      return `<li><strong>${parts[0]}:</strong>${parts.slice(1).join(':')}</li>`;
+    }
+    return `<li>${b}</li>`;
+  }).join('');
+
+  document.getElementById('slide-content').innerHTML = `
+    <div>
+      <div class="badge">INTEL PHYSICAL AI TRACK • 2026</div>
+      <h1>${s.title}</h1>
+      <h2>${s.subtitle}</h2>
+      <ul class="bullets">
+        ${bulletsHtml}
+      </ul>
+    </div>
+    <div>
+      <div class="highlight-card">
+        <span>⚡</span>
+        <span>${s.highlight}</span>
+      </div>
+      <div class="slide-footer">
+        <span>AURA-VLA • Autonomous Physical AI on Intel Core Ultra</span>
+        <span>SLIDE ${idx + 1} / ${slides.length}</span>
+      </div>
+    </div>
+  `;
+}
+
+function nextSlide() {
+  if (current < slides.length - 1) {
+    current++;
+    renderSlide(current);
+  }
+}
+
+function prevSlide() {
+  if (current > 0) {
+    current--;
+    renderSlide(current);
+  }
+}
+
+// Keyboard Controls
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+  if (e.key === 'ArrowLeft') prevSlide();
+});
+
+renderSlide(0);
+</script>
+
+</body>
+</html>
