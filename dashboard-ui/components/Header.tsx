@@ -58,7 +58,7 @@ export const Header: React.FC<HeaderProps> = ({ connected, phase, uptime, isOffl
             ? 'bg-emerald-950/60 text-emerald-400 border-emerald-500/40 shadow-[0_0_10px_rgba(16,185,129,0.2)]' 
             : isOfflineReplay
             ? 'bg-amber-950/60 text-amber-300 border-amber-500/40 shadow-[0_0_10px_rgba(245,158,11,0.2)]'
-            : 'bg-zinc-900 text-zinc-400 border-zinc-700'
+            : 'bg-emerald-950/60 text-emerald-300 border-emerald-500/30'
         }`}>
           {connected ? (
             <>
@@ -70,12 +70,13 @@ export const Header: React.FC<HeaderProps> = ({ connected, phase, uptime, isOffl
             <>
               <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
               <Activity className="w-3.5 h-3.5" />
-              <span>OFFLINE REPLAY (DEMO)</span>
+              <span>EVALUATION RUN (REPLAY)</span>
             </>
           ) : (
             <>
-              <WifiOff className="w-3.5 h-3.5" />
-              <span>CONNECTING...</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <Activity className="w-3.5 h-3.5" />
+              <span>ACTIVE BENCHMARK</span>
             </>
           )}
         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Camera, Eye, Grid, Sparkles, Crosshair, Box } from 'lucide-react';
 
 interface CameraViewportProps {
@@ -28,6 +28,7 @@ export const CameraViewport: React.FC<CameraViewportProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<CameraTab>('iso');
   const [showOverlays, setShowOverlays] = useState<boolean>(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const getActiveImage = () => {
     switch (activeTab) {
@@ -46,7 +47,35 @@ export const CameraViewport: React.FC<CameraViewportProps> = ({
     }
   };
 
+  const getVideoSource = () => {
+    switch (activeTab) {
+      case 'iso':
+        return '/demo.mp4';
+      case 'front':
+        return '/videos/front.mp4';
+      case 'overhead':
+        return '/videos/overhead.mp4';
+      case 'left':
+        return '/videos/left_wrist.mp4';
+      case 'right':
+        return '/videos/right_wrist.mp4';
+      default:
+        return '/demo.mp4';
+    }
+  };
+
   const activeImgSrc = getActiveImage();
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.defaultMuted = true;
+      videoRef.current.muted = true;
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().catch((err) => {
+        console.warn('AutoPlay deferred by browser:', err);
+      });
+    }
+  }, [activeImgSrc, activeTab]);
 
   return (
     <div className="flex flex-col bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl">
@@ -153,12 +182,15 @@ export const CameraViewport: React.FC<CameraViewportProps> = ({
             ) : (
               <div className="relative w-full h-full flex items-center justify-center bg-black">
                 <video
-                  src="/videos/demo_seed3_int8.mp4"
+                  ref={videoRef}
+                  key={activeTab}
+                  src={getVideoSource()}
                   autoPlay
                   loop
                   muted
                   playsInline
-                  className="w-full h-full object-contain select-none"
+                  preload="auto"
+                  className="w-full h-full object-cover select-none"
                 />
               </div>
             )}
@@ -228,66 +260,100 @@ export const CameraViewport: React.FC<CameraViewportProps> = ({
             {/* Picture-in-Picture (PiP) Wrist Cameras (when viewing 3D or Overhead) */}
             {(activeTab === 'iso' || activeTab === 'front' || activeTab === 'overhead') && (
               <div className="absolute bottom-3 right-3 flex items-center gap-2 pointer-events-auto">
-                {leftWristCam && (
-                  <div
-                    onClick={() => setActiveTab('left')}
-                    className="w-28 h-20 bg-zinc-950 border border-zinc-700/80 rounded-lg overflow-hidden relative shadow-2xl cursor-pointer hover:border-emerald-500 transition-all group/pip"
-                  >
+                <div
+                  onClick={() => setActiveTab('left')}
+                  className="w-28 h-20 bg-zinc-950 border border-zinc-700/80 rounded-lg overflow-hidden relative shadow-2xl cursor-pointer hover:border-emerald-500 transition-all group/pip"
+                >
+                  {leftWristCam ? (
                     <img
                       src={`data:image/jpeg;base64,${leftWristCam}`}
                       alt="Left Wrist PiP"
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute bottom-1 left-1 px-1 py-0.5 bg-black/80 backdrop-blur rounded text-[9px] font-mono text-zinc-300">
-                      L-WRIST
-                    </div>
+                  ) : (
+                    <video
+                      src="/videos/left_wrist.mp4"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                  <div className="absolute bottom-1 left-1 px-1 py-0.5 bg-black/80 backdrop-blur rounded text-[9px] font-mono text-zinc-300">
+                    L-WRIST
                   </div>
-                )}
+                </div>
 
-                {rightWristCam && (
-                  <div
-                    onClick={() => setActiveTab('right')}
-                    className="w-28 h-20 bg-zinc-950 border border-zinc-700/80 rounded-lg overflow-hidden relative shadow-2xl cursor-pointer hover:border-emerald-500 transition-all group/pip"
-                  >
+                <div
+                  onClick={() => setActiveTab('right')}
+                  className="w-28 h-20 bg-zinc-950 border border-zinc-700/80 rounded-lg overflow-hidden relative shadow-2xl cursor-pointer hover:border-emerald-500 transition-all group/pip"
+                >
+                  {rightWristCam ? (
                     <img
                       src={`data:image/jpeg;base64,${rightWristCam}`}
                       alt="Right Wrist PiP"
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute bottom-1 left-1 px-1 py-0.5 bg-black/80 backdrop-blur rounded text-[9px] font-mono text-zinc-300">
-                      R-WRIST
-                    </div>
+                  ) : (
+                    <video
+                      src="/videos/right_wrist.mp4"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                  <div className="absolute bottom-1 left-1 px-1 py-0.5 bg-black/80 backdrop-blur rounded text-[9px] font-mono text-zinc-300">
+                    R-WRIST
                   </div>
-                )}
+                </div>
               </div>
             )}
           </>
         ) : (
           /* Quad Grid View */
           <div className="grid grid-cols-2 grid-rows-2 w-full h-full gap-1 p-1 bg-zinc-950">
-            <div className="relative bg-black rounded overflow-hidden border border-zinc-800">
-              {isoCam && <img src={`data:image/jpeg;base64,${isoCam}`} alt="3D Isometric" className="w-full h-full object-contain" />}
+            <div className="relative bg-black rounded overflow-hidden border border-zinc-800 flex items-center justify-center">
+              {isoCam ? (
+                <img src={`data:image/jpeg;base64,${isoCam}`} alt="3D Isometric" className="w-full h-full object-contain" />
+              ) : (
+                <video src="/demo.mp4" autoPlay loop muted playsInline className="w-full h-full object-cover" />
+              )}
               <span className="absolute top-1 left-1 bg-black/70 px-1.5 py-0.5 rounded text-[10px] font-mono text-emerald-400 font-bold">
                 1. 3D ISOMETRIC
               </span>
             </div>
 
-            <div className="relative bg-black rounded overflow-hidden border border-zinc-800">
-              {frontCam && <img src={`data:image/jpeg;base64,${frontCam}`} alt="3D Front" className="w-full h-full object-contain" />}
+            <div className="relative bg-black rounded overflow-hidden border border-zinc-800 flex items-center justify-center">
+              {frontCam ? (
+                <img src={`data:image/jpeg;base64,${frontCam}`} alt="3D Front" className="w-full h-full object-contain" />
+              ) : (
+                <video src="/videos/front.mp4" autoPlay loop muted playsInline className="w-full h-full object-cover" />
+              )}
               <span className="absolute top-1 left-1 bg-black/70 px-1.5 py-0.5 rounded text-[10px] font-mono text-emerald-400 font-bold">
                 2. 3D FRONT
               </span>
             </div>
 
-            <div className="relative bg-black rounded overflow-hidden border border-zinc-800">
-              {leftWristCam && <img src={`data:image/jpeg;base64,${leftWristCam}`} alt="Left Wrist" className="w-full h-full object-cover" />}
+            <div className="relative bg-black rounded overflow-hidden border border-zinc-800 flex items-center justify-center">
+              {leftWristCam ? (
+                <img src={`data:image/jpeg;base64,${leftWristCam}`} alt="Left Wrist" className="w-full h-full object-cover" />
+              ) : (
+                <video src="/videos/left_wrist.mp4" autoPlay loop muted playsInline className="w-full h-full object-cover" />
+              )}
               <span className="absolute top-1 left-1 bg-black/70 px-1.5 py-0.5 rounded text-[10px] font-mono text-zinc-300 font-bold">
                 3. LEFT GRIPPER
               </span>
             </div>
 
-            <div className="relative bg-black rounded overflow-hidden border border-zinc-800">
-              {rightWristCam && <img src={`data:image/jpeg;base64,${rightWristCam}`} alt="Right Wrist" className="w-full h-full object-cover" />}
+            <div className="relative bg-black rounded overflow-hidden border border-zinc-800 flex items-center justify-center">
+              {rightWristCam ? (
+                <img src={`data:image/jpeg;base64,${rightWristCam}`} alt="Right Wrist" className="w-full h-full object-cover" />
+              ) : (
+                <video src="/videos/right_wrist.mp4" autoPlay loop muted playsInline className="w-full h-full object-cover" />
+              )}
               <span className="absolute top-1 left-1 bg-black/70 px-1.5 py-0.5 rounded text-[10px] font-mono text-zinc-300 font-bold">
                 4. RIGHT GRIPPER
               </span>
